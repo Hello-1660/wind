@@ -49,7 +49,7 @@ const createMainWindow = () => {
         width: +winPath.winWidth,
         height: +winPath.winHeight,
         frame: false,
-        transparent: false,
+        transparent: true,
         resizable: false,
         skipTaskbar: true,
         icon: path.join(__dirname, 'icon.png'),
