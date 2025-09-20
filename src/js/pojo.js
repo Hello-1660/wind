@@ -1,13 +1,7 @@
+// 配置文件
 const WIND_CONFIG = {
-    // 默认主题配置
+    // 默认配置
     default: {
-        window: {
-            // 窗口配置
-            winX: 1000,
-            winY: 1000,
-            winWidth: 300,
-            winHeight: 150,
-        },
         ui: {
             // 界面配置
             // 通用
@@ -40,6 +34,51 @@ const WIND_CONFIG = {
 
             // 提示
             tipStyle: 'default'             // 提示样式
+        },
+        Interaction: {
+            // 交互
+            addTodo: ['w', 'a'],            // 添加任务
+            showTodo: ['w', 's'],           // 展示任务
+            updateTodo: ['w', 'u'],         // 更新任务
+
+            // 事件到期时间提醒
+            isRemind: true,                 // 是否提醒 
+
+            // 开机自启
+            isAutoStart: true               // 是否开机自启
         }
+    }
+}
+
+
+// 待办对象
+const TODO = class TODO {
+    constructor(id, type, title, content, outTime, status, isRemind, remind) {
+        this.id = id;
+        this.type = type;
+        this.title = title;
+        this.content = content;
+        this.outTime = outTime;
+        this.status = status;
+        this.status = status;
+        this.isRemind = isRemind;
+        this.remind = remind;
+    }
+
+
+    toString() {
+        return `
+        id: ${this.id}, 
+        type: ${this.type}, 
+        title: ${this.title}, 
+        content: ${this.content}, 
+        outTime: ${this.outTime}, 
+        status: ${this.status}, 
+        isRemind: ${this.isRemind}, 
+        remind: ${this.remind}`
+    }
+
+    toJson() {
+        return JSON.stringify(this)
     }
 }
