@@ -64,63 +64,67 @@ document.addEventListener('DOMContentLoaded', async () => {
         return defaultVal
     }
 
-    // 获取配置
-    try {
-        const CONFIG = await window.electronAPI.getSettingFile();
+    const getConfig = async () => {
+        // 获取配置
+        try {
+            const CONFIG = await window.electronAPI.getSettingFile();
 
-        // 确保 CONFIG 是一个对象，如果不是则使用空对象
-        const configData = CONFIG && typeof CONFIG === 'object' ? CONFIG : {}
+            // 确保 CONFIG 是一个对象，如果不是则使用空对象
+            const configData = CONFIG && typeof CONFIG === 'object' ? CONFIG : {}
 
-        const customConfig = {
-            ui: {
-                // 界面配置
-                // 通用
-                bgc: configData.bgc || DEFAULT_CONFIG.ui.bgc,
-                font: configData.font || DEFAULT_CONFIG.ui.font,
-                fontSize: configData.fontSize || DEFAULT_CONFIG.ui.fontSize,
-                fontColor: configData.fontColor || DEFAULT_CONFIG.ui.fontColor,
+            const customConfig = {
+                ui: {
+                    // 界面配置
+                    // 通用
+                    bgc: configData.bgc || DEFAULT_CONFIG.ui.bgc,
+                    font: configData.font || DEFAULT_CONFIG.ui.font,
+                    fontSize: configData.fontSize || DEFAULT_CONFIG.ui.fontSize,
+                    fontColor: configData.fontColor || DEFAULT_CONFIG.ui.fontColor,
 
-                // 按钮
-                btnBorderColor: configData.btnBorderColor || DEFAULT_CONFIG.ui.btnBorderColor,
-                btnBgColor: configData.btnBgColor || DEFAULT_CONFIG.ui.btnBgColor,
-                btnFontColor: configData.btnFontColor || DEFAULT_CONFIG.ui.btnFontColor,
-                btnFontSize: configData.btnFontSize || DEFAULT_CONFIG.ui.btnFontSize,
+                    // 按钮
+                    btnBorderColor: configData.btnBorderColor || DEFAULT_CONFIG.ui.btnBorderColor,
+                    btnBgColor: configData.btnBgColor || DEFAULT_CONFIG.ui.btnBgColor,
+                    btnFontColor: configData.btnFontColor || DEFAULT_CONFIG.ui.btnFontColor,
+                    btnFontSize: configData.btnFontSize || DEFAULT_CONFIG.ui.btnFontSize,
 
-                // 文本框
-                textBorderColor: configData.textBorderColor || DEFAULT_CONFIG.ui.textBorderColor,
-                textBgColor: configData.textBgColor || DEFAULT_CONFIG.ui.textBgColor,
-                textFontColor: configData.textFontColor || DEFAULT_CONFIG.ui.textFontColor,
-                textFontSize: configData.textFontSize || DEFAULT_CONFIG.ui.textFontSize,
+                    // 文本框
+                    textBorderColor: configData.textBorderColor || DEFAULT_CONFIG.ui.textBorderColor,
+                    textBgColor: configData.textBgColor || DEFAULT_CONFIG.ui.textBgColor,
+                    textFontColor: configData.textFontColor || DEFAULT_CONFIG.ui.textFontColor,
+                    textFontSize: configData.textFontSize || DEFAULT_CONFIG.ui.textFontSize,
 
-                // 时间
-                timeFontColor: configData.timeFontColor || DEFAULT_CONFIG.ui.timeFontColor,
-                timeFontSize: configData.timeFontSize || DEFAULT_CONFIG.ui.timeFontSize,
+                    // 时间
+                    timeFontColor: configData.timeFontColor || DEFAULT_CONFIG.ui.timeFontColor,
+                    timeFontSize: configData.timeFontSize || DEFAULT_CONFIG.ui.timeFontSize,
 
-                // 日期
-                dateFontColor: configData.dateFontColor || DEFAULT_CONFIG.ui.dateFontColor,
-                dateFontSize: configData.dateFontSize || DEFAULT_CONFIG.ui.dateFontSize,
-                dateFormat: configData.dateFormat || DEFAULT_CONFIG.ui.dateFormat,
-                dateContent: configData.dateContent || DEFAULT_CONFIG.ui.dateContent,
+                    // 日期
+                    dateFontColor: configData.dateFontColor || DEFAULT_CONFIG.ui.dateFontColor,
+                    dateFontSize: configData.dateFontSize || DEFAULT_CONFIG.ui.dateFontSize,
+                    dateFormat: configData.dateFormat || DEFAULT_CONFIG.ui.dateFormat,
+                    dateContent: configData.dateContent || DEFAULT_CONFIG.ui.dateContent,
 
-                // 提示
-                tipStyle: configData.tipStyle || DEFAULT_CONFIG.ui.tipStyle
-            },
-            Interaction: {
-                // 交互
-                addTodo: parseShortcut(configData.addTodo, DEFAULT_CONFIG.Interaction.addTodo),
-                showTodo: parseShortcut(configData.showTodo, DEFAULT_CONFIG.Interaction.showTodo),
-                updateTodo: parseShortcut(configData.updateTodo, DEFAULT_CONFIG.Interaction.updateTodo),
+                    // 提示
+                    tipStyle: configData.tipStyle || DEFAULT_CONFIG.ui.tipStyle
+                },
+                Interaction: {
+                    // 交互
+                    addTodo: parseShortcut(configData.addTodo, DEFAULT_CONFIG.Interaction.addTodo),
+                    showTodo: parseShortcut(configData.showTodo, DEFAULT_CONFIG.Interaction.showTodo),
+                    updateTodo: parseShortcut(configData.updateTodo, DEFAULT_CONFIG.Interaction.updateTodo),
 
-                // 事件到期时间提醒
-                isRemind: parseBoolean(configData.isRemind, DEFAULT_CONFIG.Interaction.isRemind),
+                    // 事件到期时间提醒
+                    isRemind: parseBoolean(configData.isRemind, DEFAULT_CONFIG.Interaction.isRemind),
 
-                // 开机自启
-                isAutoStart: parseBoolean(configData.isAutoStart, DEFAULT_CONFIG.Interaction.isAutoStart)
+                    // 开机自启
+                    isAutoStart: parseBoolean(configData.isAutoStart, DEFAULT_CONFIG.Interaction.isAutoStart)
+                }
             }
-        }
 
-        console.log('获取配置成功:', configData)        
-    } catch (error) {
-        console.error('获取配置失败:', error)
+            return customConfig
+        } catch (error) {
+            console.error('获取配置失败:', error)
+            return DEFAULT_CONFIG
+        }
     }
+ 
 })
