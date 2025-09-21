@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-
     setConfig(config)
 
     // 渲染配置
@@ -56,73 +55,72 @@ document.addEventListener('DOMContentLoaded', async () => {
         })
 
         // 下拉框
+        const liHeight = document.querySelectorAll('li')[0].offsetHeight
+
         fontFamily.style.width = +config.ui.fontSize * 5 + 40 + 'px'
+        fontFamily.style.left = +config.ui.fontSize * 4 + 'px'
+        fontFamilyHead.style.height = liHeight + 'px'
         tipStyle.style.width = +config.ui.fontSize * 2 + 40 + 'px'
+        tipStyle.style.left = +config.ui.fontSize * 5 + 'px'
+        tipStyleHead.style.height = liHeight + 'px'
     }
 
 
 
 
     // 下拉框
-    if (fontFamily && fontFamilys) {
-        fontFamily.addEventListener('click', (e) => {
+
+    fontFamily.addEventListener('click', (e) => {
+        e.stopPropagation()
+        fontFamilys.style.maxHeight = 500 + 'px'
+    })
+
+    // 下拉点击条目
+    const fontFamilysItem = fontFamilys.querySelectorAll('div')
+    fontFamilysItem.forEach(item => {
+        item.addEventListener('click', (e) => {
             e.stopPropagation()
-            fontFamilys.style.display = fontFamilys.style.display === 'none' ? 'block' : 'none'
+
+            fontFamilys.style.maxHeight = 0 + 'px'
+            fontFamilyHead.innerText = item.innerText
         })
+    })
 
-        // 下拉点击条目
-        const fontFamilysItem = fontFamilys.querySelectorAll('div')
-        fontFamilysItem.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation()
 
-                if (fontFamilyHead) {
-                    fontFamilyHead.innerText = item.innerText 
-                }
 
-                fontFamilys.style.display = 'none'
-            })
-        })
-    }
+    tipStyle.addEventListener('click', (e) => {
+        e.stopPropagation()
+        tipStyles.style.maxHeight = 500 + 'px'
+    })
 
-    if (tipStyle && tipStyles) {
-        tipStyle.addEventListener('click', (e) => {
+    const tipStylesItem = tipStyles.querySelectorAll('div')
+    tipStylesItem.forEach(item => {
+        item.addEventListener('click', (e) => {
             e.stopPropagation()
-            tipStyles.style.display = tipStyles.style.display === 'none' ? 'block' : 'none'
+
+            tipStyles.style.maxHeight = 0 + 'px'
+            tipStyleHead.innerText = item.innerText
         })
-
-        const tipStylesItem = tipStyles.querySelectorAll('div')
-        tipStylesItem.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation()
-
-                if (tipStyleHead) {
-                    tipStyleHead.innerText = item.innerText 
-                }
-
-                tipStyles.style.display = 'none'
-            })
-        })
-    }
+    })
 
 
-    // 点击其他区域关闭
+
+    // // 点击其他区域关闭
     document.addEventListener('click', () => {
-        if (fontFamilys) fontFamilys.style.display = 'none'
-        if (tipStyles) tipStyles.style.display = 'none'
+        fontFamilys.style.maxHeight = 0 + 'px'
+        tipStyles.style.maxHeight = 0 + 'px'
     })
 
 
     // 防止点击自生是隐藏
-    if (tipStyle) {
-        tipStyle.addEventListener('click', (e) => {
-            e.stopPropagation()
-        })
-    }
 
-    if (fontFamily) {
-        fontFamilys.addEventListener('click', (e) => {
-            e.stopPropagation()
-        })
-    }
+    tipStyles.addEventListener('click', (e) => {
+        e.stopPropagation()
+    })
+
+
+
+    fontFamilys.addEventListener('click', (e) => {
+        e.stopPropagation()
+    })
 })
