@@ -7,6 +7,10 @@
 }
 
 li {
+    /* 水平排列垂直居中 */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     border-radius: 6px;
 }
 
@@ -45,26 +49,41 @@ li:hover {
 
 
 .fontFamily, .tipStyle {
+    position: absolute;
+    top: 0;
+    box-sizing: border-box;
     border-radius: 5px;
     margin: 0 30px;
-    padding: 5px 10px;
+    padding: 0 10px;
     background-color: rgb(255, 255, 255);
     text-align: center;
+    line-height: 1.5;
 }
 
 .select {
+    position: relative;
     display: flex;
     justify-content: flex-start;
-    align-items: top;
+    align-items: flex-start;
 }
 
 .select_head {
-    padding: 10px 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: rgb(255, 255, 255);
 }
 
 .select_body {
-    display: none;
+    background-color: rgb(255, 255, 255);
+    max-height: 0;
+    width: 100%;
+    overflow: hidden;
+    transition: all 0.5s;
 }
+
+
 
 .select_body div {
     padding: 10px 5px;
