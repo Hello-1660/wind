@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-   // 获取设置数据模型
-   const config = await window.electronAPI.getSettingModel()
+    // 获取设置数据模型
+    const config = await window.electronAPI.getSettingModel()
 
 
     // 渲染配置
@@ -13,9 +13,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         time.style.color = config.ui.timeFontColor
         time.style.fontSize = config.ui.timeFontSize + 'px'
+        time.style.fontFamily = config.ui.timeFontFamily
         date.style.color = config.ui.dateFontColor 
         date.style.fontSize = config.ui.dateFontSize + 'px'
- 
+        date.style.fontFamily = config.ui.dateFontFamily
+        
 
         setInterval(() => {
             const now = new Date()

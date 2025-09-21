@@ -3,9 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>setting</title>
+    <title>设置</title>
+    <link rel="stylesheet" href="../css/setting.css">
+    <script src="../js/setting.js"></script>
 </head>
 <body>
-    <h1>setting</h1>
+    <div class="setting">
+        <!-- 左侧选择列表 -->
+        <ul class="setting_list">
+            <li><a href="#globalUI">全局UI</a></li>
+            <li><a href="#buttonUI">按钮</a></li>
+            <li><a href="#textUI">文本框</a></li>
+            <li><a href="#timeUI">时间</a></li>
+            <li><a href="#dateUI">日期</a></li>
+            <li><a href="#tipUI">弹窗</a></li>
+            <li><a href="#shortcutKey">快捷键</a></li>
+            <li><a href="#happy">喜好</a></li>
+        </ul>
+
+        <ul class="setting_set_list">
+            <li id="globalUI">
+                <label for="fontSize">字体大小</label>
+                <input id="fontSize" type="range" min="12" max="24" value="12">
+            </li>
+
+            <li class="select">
+                <div>字体样式</div>
+
+                <div class="fontFamily">
+                    <div id="fontFamilyHead" class="select_head">微软雅黑</div>
+
+                    <div id="fontFamilys" class="select_body">
+                        <div>微软雅黑</div>
+                        <div>宋体</div>
+                        <div>黑体</div>
+                        <div>微软正黑体</div>
+                        <div>楷体</div>
+                        <div>新宋体</div>
+                        <div>仿宋</div>
+                    </div>
+                </div>
+            </li>
+
+            <li>
+                <label for="fontColor">字体颜色</label>
+                <input id="fontColor" type="color">
+            </li>
+
+            <li>
+                <label for="">背景颜色</label>
+                <input id="bgColor" type="color"></input>
+            </li>
+
+            <li id="buttonUI">
+                <label for="buttonColor">按钮背景颜色</label>
+                <input id="buttonColor" type="color"></input>
+            </li>
+
+            <li>
+                <label for="buttonBorderColor">按钮边框颜色</label>
+                <input id="buttonBorderColor" type="color"></input>
+            </li>
+
+            <li>
+                <label for="buttonFontColor">按钮字体颜色</label>
+                <input id="buttonFontColor" type="color"></input>
+            </li>
+
+            <li>
+                <label for="buttonFontSize">按钮字体大小</label>
+                <input id="buttonFontSize" type="range" min="12" max="24" value="12"></input>
+            </li>
+
+            <li id="textUI">
+                <label for="textColor">文本框背景颜色</label>
+                <input id="textColor" type="color">
+            </li>
+
+            <li>
+                <label for="textBorderColor">文本框边框颜色</label>
+                <input id="textBorderColor" type="color"></input>
+            </li>
+
+            <li>
+                <label for="textFontColor">文本框字体颜色</label>
+                <input id="textFontColor" type="color"></input>
+            </li>
+
+            <li>
+                <label for="textFontSize">文本框字体大小</label>
+                <input id="textFontSize" type="range" min="12" max="24" value="12"></input>
+            </li>
+
+            <li id="timeUI">
+                <label for="timeFontColor">时间字体颜色</label>
+                <input id="timeFontColor" type="color"></input>
+            </li>
+
+            <li>
+                <label for="timeFontSize">时间字体大小</label>
+                <input id="timeFontSize" type="range" min="12" max="36" value="12"></input>
+            </li>
+
+            <li id="dateUI">
+                <label for="dateFontColor">日期字体颜色</label>
+                <input id="dateFontColor" type="color"></input>
+            </li>
+
+            <li>
+                <label for="dateFontSize">日期字体大小</label>
+                <input id="dateFontSize" type="range" min="12" max="36" value="12"></input>
+            </li>
+
+            <li>
+                <label for="">日期格式</label>
+                <input id="dateFormat" type="text">
+            </li>
+
+            <li>
+                <label for="dateContent">日期内容自定义</label>
+                <input id="dateContent" type="text"></input>
+            </li>
+
+            <li id="tipUI" class="select">
+                <label for="">提示框样式</label>
+
+                <div class="tipStyle">
+                    <div id="tipStyleHead" class="select_head">默认</div>
+
+                    <div id="tipStyles" class="select_body">
+                        <div>默认</div>
+                    </div>
+                </div>
+            </li>
+
+            <li id="shortcutKey">
+                <label for="addTodo">添加待办</label>
+                <input id="addTodo" type="text">
+            </li>
+
+            <li>
+                <label for="showTodo">展示待办</label>
+                <input id="showTodo" type="text"></input>
+            </li>
+
+            <li>
+                <label for="updateTodo">修改待办</label>
+                <input id="updateTodo" type="text"></input>
+            </li>
+
+            <li id="happy">
+                <label for="">开机自启</label>
+                <input id="enable" type="radio" name="isEnable" checked></input>
+                <label for="enable">是</label>
+                <input id="desable" type="radio" name="isEnable"></input>
+                <label for="desable">否</label>
+            </li>
+
+            <li>
+                <label for="">开启提示</label>
+                <input id="entip" type="radio" name="isTip" checked></input>
+                <label for="entip">是</label>
+                <input id="destip" type="radio" name="isTip"></input>
+                <label for="destip">否</label>
+            </li>
+        </ul>
+    </div>
 </body>
 </html>

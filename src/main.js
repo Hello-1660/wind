@@ -98,8 +98,8 @@ const createSettingWindow = () => {
     }
 
     settingWindow = new BrowserWindow({
-        width: 600,
-        height: 400,
+        width: 900,
+        height: 700,
         resizable: false,
         icon: path.join(__dirname, './icons/wind.png'),
         webPreferences: {
@@ -311,7 +311,7 @@ function readSettingFile() {
 
 
 
-
+// 配置数据模型
 
 function getSetting() {
     // 默认配置
@@ -357,7 +357,6 @@ function getSetting() {
 
             // 事件到期时间提醒
             isRemind: true,                 // 是否提醒 
-
             // 开机自启
             isAutoStart: true               // 是否开机自启
         }

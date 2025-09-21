@@ -1,0 +1,92 @@
+* {
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    list-style: none;
+    user-select: none;
+}
+
+li {
+    border-radius: 6px;
+}
+
+li:hover {
+    background-color: rgba(87, 87, 87, 0.208);
+    cursor: pointer;
+}
+
+
+/* 左侧设置列表 */
+.setting {
+    position: relative;
+}
+
+.setting_list {
+    position: fixed;
+    top: 20px;
+    left: 20px; 
+    width: 200px;
+}
+
+.setting_list li {
+    padding: 10px;
+}
+
+.setting_set_list {
+    position: absolute;
+    top: 20px;
+    left: 240px;
+    width: 610px;
+}
+
+.setting_set_list li {
+    padding: 10px;
+}
+
+
+.fontFamily, .tipStyle {
+    border-radius: 5px;
+    margin: 0 30px;
+    padding: 5px 10px;
+    background-color: rgb(255, 255, 255);
+    text-align: center;
+}
+
+.select {
+    display: flex;
+    justify-content: flex-start;
+    align-items: top;
+}
+
+.select_head {
+    padding: 10px 5px;
+}
+
+.select_body {
+    display: none;
+}
+
+.select_body div {
+    padding: 10px 5px;
+    border-radius: 5px;
+}
+
+.select_body div:hover {
+    background-color: rgba(87, 87, 87, 0.208);
+}
+
+input {
+    margin: 0 60px;
+    opacity: none;
+    outline: none;
+}
+
+
+input[type="radio"] {
+    margin: 5px;
+}
+
+input[type="text"] {
+    padding: 4px;
+    border-radius: 4px;
+}
