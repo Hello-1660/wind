@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require('electron')
 const path = require('path')
 const fs = require('fs')
 
@@ -6,6 +6,16 @@ const fs = require('fs')
 
 
 
+
+
+
+
+// 系统托盘
+let tray = null
+// 主界面
+let mainWindow = null
+// 设置界面
+let settingWindow = null
 
 
 
@@ -40,10 +50,13 @@ const winPath = {
 
 
 
+// 主界面
 const createMainWindow = () => {
+    if (mainWindow) {
+        return
+    }
 
-
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         x: +winPath.winX,
         y: +winPath.winY,
         width: +winPath.winWidth,
@@ -56,7 +69,7 @@ const createMainWindow = () => {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js'),
         }
     })
 
@@ -75,6 +88,112 @@ const createMainWindow = () => {
     mainWindow.loadFile(path.join(__dirname, 'index.html'))
 }
 
+
+
+
+// 设置界面
+const createSettingWindow = () => {
+    if (settingWindow) {
+        return
+    }
+
+    settingWindow = new BrowserWindow({
+        width: 600,
+        height: 400,
+        resizable: false,
+        icon: path.join(__dirname, './icons/wind.png'),
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js')
+        }
+    })
+
+    // 隐藏菜单栏
+    settingWindow.setMenu(null)
+
+    settingWindow.loadFile(path.join(__dirname, './html/setting.html'))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// 创建系统托盘
+const createTray = () => {
+    // 托盘图标
+    const iconPath = path.join(__dirname, './icons/wind.png')
+
+    let icon
+    try {
+        icon = nativeImage.createFromPath(iconPath)
+    } catch (error) {
+        icon = nativeImage.createEmpty()
+    }
+
+    tray = new Tray(icon)
+
+    // 创建上下文菜单
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: '设置',
+            click: () => {
+                createSettingWindow()
+            }
+        },
+        {
+            label: '显示/隐藏',
+            click: () => {
+                if (mainWindow.isVisible()) {
+                    mainWindow.hide()
+                } else {
+                    mainWindow.show()
+                }
+            }
+        },
+        {
+            label: '添加待办',
+            click: () => {
+
+            }
+        },
+        {
+            label: '查看待办',
+            click: () => {
+
+            }
+        },
+        {
+            label: '退出',
+            click: () => {
+                app.quit()
+            }
+        }
+    ])
+
+
+    // 托盘鼠标悬停
+    tray.setToolTip('Salvation lies within')
+
+    // 设置上下文菜单
+    tray.setContextMenu(contextMenu)
+
+    // 点击托盘隐藏或显示窗口
+    tray.on('click', () => {
+        if (mainWindow.isVisible()) {
+            mainWindow.hide()
+        } else {
+            mainWindow.show()
+        }
+    })
+}
 
 
 
@@ -97,6 +216,7 @@ const createMainWindow = () => {
 
 app.on('ready', () => {
     createMainWindow()
+    createTray()
 })
 
 
@@ -109,6 +229,17 @@ app.on('window-all-closed', () => {
 ipcMain.handle('getSettingFile', () => {
     return readSettingFile()
 })
+
+
+ipcMain.handle('create-setting-window', () => {
+    createSettingWindow()
+})
+
+ipcMain.handle('get-setting-model', () => {
+    return getSetting()
+})
+
+
 
 
 
@@ -146,12 +277,6 @@ function writeSettingFile(data) {
 
 
 
-
-
-
-
-
-
 // 读取配置文件
 function readSettingFile() {
     try {
@@ -182,6 +307,148 @@ function readSettingFile() {
         return {}
     }
 }
+
+
+
+
+
+
+function getSetting() {
+    // 默认配置
+    const DEFAULT_CONFIG = {
+        ui: {
+            // 界面配置
+            // 通用
+            bgc: '#fff',                  // 背景色
+            font: 'Microsoft YaHei',        // 字体
+            fontSize: 12,                   // 字体大小
+            fontColor: '#000',            // 字体颜色 
+
+            // 按钮
+            btnBorderColor: '#000',       // 按钮边框颜色
+            btnBgColor: '#fff',           // 按钮背景颜色
+            btnFontColor: '#000',         // 按钮字体颜色
+            btnFontSize: 12,                // 按钮字体大小
+
+            // 文本框
+            textBorderColor: '#000',      // 文本框边框颜色
+            textBgColor: '#fff',          // 文本框背景颜色
+            textFontColor: '#000',        // 文本框字体颜色
+            textFontSize: 12,               // 文本框字体大小
+
+            // 时间
+            timeFontColor: '#000',        // 时间字体颜色
+            timeFontSize: 12,               // 时间字体大小
+
+            // 日期
+            dateFontColor: '#000',        // 日期字体颜色
+            dateFontSize: 12,               // 日期字体大小
+            dateFormat: 'yyyy-MM-dd',       // 日期格式
+            dateContent: '',                // 日期内容自定义
+
+            // 提示
+            tipStyle: 'default'             // 提示样式
+        },
+        Interaction: {
+            // 交互
+            addTodo: ['w', 'a'],            // 添加任务
+            showTodo: ['w', 's'],           // 展示任务
+            updateTodo: ['w', 'u'],         // 更新任务
+
+            // 事件到期时间提醒
+            isRemind: true,                 // 是否提醒 
+
+            // 开机自启
+            isAutoStart: true               // 是否开机自启
+        }
+    }
+
+    // 解析快捷键配置
+    const parseShortcut = (shortcutStr, defaultVal) => {
+        if (shortcutStr) {
+            return shortcutStr.split(',').map(key => key.trim())
+        }
+        return defaultVal
+    }
+
+    // 解析布尔值配置
+    const parseBoolean = (boolStr, defaultVal) => {
+        if (boolStr !== undefined) {
+            return boolStr === 'true' || boolStr === true
+        }
+        return defaultVal
+    }
+
+    const getConfig = async () => {
+        // 获取配置
+        try {
+            const CONFIG = readSettingFile()
+
+            // 确保 CONFIG 是一个对象，如果不是则使用空对象
+            const configData = CONFIG && typeof CONFIG === 'object' ? CONFIG : {}
+
+            const customConfig = {
+                ui: {
+                    // 界面配置
+                    // 通用
+                    bgc: configData.bgc || DEFAULT_CONFIG.ui.bgc,
+                    font: configData.font || DEFAULT_CONFIG.ui.font,
+                    fontSize: configData.fontSize || DEFAULT_CONFIG.ui.fontSize,
+                    fontColor: configData.fontColor || DEFAULT_CONFIG.ui.fontColor,
+
+                    // 按钮
+                    btnBorderColor: configData.btnBorderColor || DEFAULT_CONFIG.ui.btnBorderColor,
+                    btnBgColor: configData.btnBgColor || DEFAULT_CONFIG.ui.btnBgColor,
+                    btnFontColor: configData.btnFontColor || DEFAULT_CONFIG.ui.btnFontColor,
+                    btnFontSize: configData.btnFontSize || DEFAULT_CONFIG.ui.btnFontSize,
+
+                    // 文本框
+                    textBorderColor: configData.textBorderColor || DEFAULT_CONFIG.ui.textBorderColor,
+                    textBgColor: configData.textBgColor || DEFAULT_CONFIG.ui.textBgColor,
+                    textFontColor: configData.textFontColor || DEFAULT_CONFIG.ui.textFontColor,
+                    textFontSize: configData.textFontSize || DEFAULT_CONFIG.ui.textFontSize,
+
+                    // 时间
+                    timeFontColor: configData.timeFontColor || DEFAULT_CONFIG.ui.timeFontColor,
+                    timeFontSize: configData.timeFontSize || DEFAULT_CONFIG.ui.timeFontSize,
+
+                    // 日期
+                    dateFontColor: configData.dateFontColor || DEFAULT_CONFIG.ui.dateFontColor,
+                    dateFontSize: configData.dateFontSize || DEFAULT_CONFIG.ui.dateFontSize,
+                    dateFormat: configData.dateFormat || DEFAULT_CONFIG.ui.dateFormat,
+                    dateContent: configData.dateContent || DEFAULT_CONFIG.ui.dateContent,
+
+                    // 提示
+                    tipStyle: configData.tipStyle || DEFAULT_CONFIG.ui.tipStyle
+                },
+                Interaction: {
+                    // 交互
+                    addTodo: parseShortcut(configData.addTodo, DEFAULT_CONFIG.Interaction.addTodo),
+                    showTodo: parseShortcut(configData.showTodo, DEFAULT_CONFIG.Interaction.showTodo),
+                    updateTodo: parseShortcut(configData.updateTodo, DEFAULT_CONFIG.Interaction.updateTodo),
+
+                    // 事件到期时间提醒
+                    isRemind: parseBoolean(configData.isRemind, DEFAULT_CONFIG.Interaction.isRemind),
+
+                    // 开机自启
+                    isAutoStart: parseBoolean(configData.isAutoStart, DEFAULT_CONFIG.Interaction.isAutoStart)
+                }
+            }
+
+            return customConfig
+        } catch (error) {
+            console.error('获取配置失败:', error)
+            return DEFAULT_CONFIG
+        }
+    }
+
+    return getConfig()
+}
+
+
+
+
+
 
 
 // 窗口数据模型
