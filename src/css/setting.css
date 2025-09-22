@@ -30,6 +30,18 @@ li:hover {
     top: 20px;
     left: 20px; 
     width: 200px;
+    border-radius: 4px;
+    transition: all 0.5s ease;
+}
+
+
+.setting_list:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    /* 背景胡话 */
+    backdrop-filter: blur(8px);
+    /* 兼容 Safari */
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .setting_list li {
@@ -40,7 +52,19 @@ li:hover {
     position: absolute;
     top: 20px;
     left: 240px;
-    width: 610px;
+    width: 600px;
+    border-radius: 4px;
+    transition: all 0.5s ease;
+}
+
+
+.setting_set_list:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    /* 背景胡话 */
+    backdrop-filter: blur(8px);
+    /* 兼容 Safari */
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)
 }
 
 .setting_set_list li {
@@ -80,7 +104,7 @@ li:hover {
     max-height: 0;
     width: 100%;
     overflow: hidden;
-    transition: all 0.5s;
+    transition: all 0.5s ease;
 }
 
 

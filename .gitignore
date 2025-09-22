@@ -4,6 +4,9 @@ node_modules/
 # 忽略所有日志文件
 *.log
 
+# 忽略配置文件
+*.properties
+
 # 忽略IDE配置文件
 .vscode/
 .idea/

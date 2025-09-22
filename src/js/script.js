@@ -12,10 +12,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!config) return
 
         time.style.color = config.ui.timeFontColor
-        time.style.fontSize = config.ui.timeFontSize + 'px'
+        time.style.fontSize = +config.ui.timeFontSize + 'px'
         time.style.fontFamily = config.ui.timeFontFamily
         date.style.color = config.ui.dateFontColor 
-        date.style.fontSize = config.ui.dateFontSize + 'px'
+        date.style.fontSize = +config.ui.dateFontSize + 'px'
         date.style.fontFamily = config.ui.dateFontFamily
         
 

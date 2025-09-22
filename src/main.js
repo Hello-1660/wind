@@ -85,6 +85,10 @@ const createMainWindow = () => {
         })
     })
 
+    mainWindow.on('closed', () => {
+        mainWindow = null
+    })
+
     mainWindow.loadFile(path.join(__dirname, 'index.html'))
 }
 
@@ -111,6 +115,10 @@ const createSettingWindow = () => {
 
     // 隐藏菜单栏
     settingWindow.setMenu(null)
+
+    settingWindow.on('closed', () => {
+        settingWindow = null
+    })
 
     settingWindow.loadFile(path.join(__dirname, './html/setting.html'))
 }
@@ -223,6 +231,7 @@ app.on('ready', () => {
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })
+
 
 
 // 获取配置文件信息
