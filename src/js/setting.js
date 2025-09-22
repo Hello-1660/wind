@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         input.forEach(item => {
             // 按钮属性
             if (item.type === 'button') {
-                item.style.backgroundColor = config.ui.btnBgcColor
+                item.style.backgroundColor = config.ui.btnBgColor
                 item.style.borderColor = config.ui.btnBorderColor
                 item.style.color = config.ui.btnFontColor
                 item.style.fontSize = config.ui.btnFontSize + 'px'
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // 
             if (item.type === 'text') {
-                item.style.backgroundColor = config.ui.textBgcColor
+                item.style.backgroundColor = config.ui.textBgColor
                 item.style.borderColor = config.ui.textBorderColor
                 item.style.color = config.ui.textFontColor
                 item.style.fontSize = config.ui.textFontSize + 'px'
