@@ -8,19 +8,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     const input = document.querySelectorAll('input')
     const a = document.querySelectorAll('a')
     const fontFamily = document.querySelector('.fontFamily')
-    const fontFamilyHead = document.querySelector('#fontFamilyHead')
     const fontFamilys = document.querySelector('#fontFamilys')
     const tipStyle = document.querySelector('.tipStyle')
-    const tipStyleHead = document.querySelector('#tipStyleHead')
     const tipStyles = document.querySelector('#tipStyles')
+    
+    // 数据回显
+    const fontSize = document.querySelector('#fontSize')
+    const fontFamilyHead = document.querySelector('#fontFamilyHead')
+    const fontColor = document.querySelector('#fontColor')
+    const bgc = document.querySelector('#bgc')
+    const buttonColor = document.querySelector('#buttonColor')
+    const buttonBorderColor = document.querySelector('#buttonBorderColor')
+    const buttonFontColor = document.querySelector('#buttonFontColor')
+    const buttonFontSize = document.querySelector('#buttonFontSize')
+    const textColor = document.querySelector('#textColor')
+    const textBorderColor = document.querySelector('#textBorderColor')
+    const textFontColor = document.querySelector('#textFontColor')
+    const textFontSize = document.querySelector('#textFontSize')
+    const timeFontColor = document.querySelector('#timeFontColor')
+    const timeFontSize = document.querySelector('#timeFontSize')
+    const dateFontColor = document.querySelector('#dateFontColor')
+    const dateFontSize = document.querySelector('#dateFontSize')
+    const dateFormat = document.querySelector('#dateFormat')
+    const dateContent = document.querySelector('#dateContent')
+    const tipStyleHead = document.querySelector('#tipStyleHead')
+    const addTodo = document.querySelector('#addTodo')
+    const showTodo = document.querySelector('#showTodo')
+    const updateTodo = document.querySelector('#updateTodo')
+    // 是否开机自启
+    const enable = document.querySelector('#enable')
+    const desable = document.querySelector('#desable')
+    let isEnable = null
+
+    // 是否开启提示
+    const entip = document.querySelector('#entip')
+    const destip = document.querySelector('#destip')
+    let isEntip = null
+
+    // 字体样式表
+    const fonts = {
+        'Microsoft YaHei': '微软雅黑',
+        'SimSun': '宋体',
+        'SimHei': '黑体',
+        'Kai': '楷体',
+        'FangSong': '仿宋',
+    }
+
+    // 弹窗样式表
+    const tips = {
+        'default': '默认'
+    }
+
+
+    setConfig()
+
+
+    
+    // 设置数据回显
+    
 
 
 
 
-    setConfig(config)
 
     // 渲染配置
-    function setConfig(config) {
+    function setConfig() {
         if (!config) return
 
         // 通用设置
@@ -63,6 +115,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         tipStyle.style.width = +config.ui.fontSize * 2 + 40 + 'px'
         tipStyle.style.left = +config.ui.fontSize * 5 + 'px'
         tipStyleHead.style.height = liHeight + 'px'
+
+
+
+        // 渲染属性值
+        fontSize.value = config.ui.fontSize
+        fontFamilyHead.innerText = fonts[config.ui.font]
+        fontColor.value = config.ui.fontColor
+        bgc.value = config.ui.bgc
+        buttonColor.value = config.ui.btnBgColor
+        buttonBorderColor.value = config.ui.btnBorderColor
+        buttonFontColor.value = config.ui.btnFontColor
+        buttonFontSize.value = config.ui.btnFontSize
+        textColor.value = config.ui.textFontColor
+        textBorderColor.value = config.ui.textBorderColor
+        textFontColor.value = config.ui.textFontColor
+        textFontSize.value = config.ui.textFontSize
+        timeFontColor.value = config.ui.timeFontColor
+        timeFontSize.value = config.ui.timeFontSize
+        dateFontColor.value = config.ui.dateFontColor
+        dateFontSize.value = config.ui.dateFontSize
+        dateFormat.value = config.ui.dateFormat
+        dateContent.value = config.ui.dateContent
+        tipStyleHead.innerText = tips[config.ui.tipStyle]
+        addTodo.value = config.Interaction.addTodo
+        showTodo.value = config.Interaction.showTodo
+        updateTodo.value = config.Interaction.updateTodo
+
+        if (config.Interaction.isRemind == true) {
+            enable.checked = true
+            desable.checked = false
+            isEnable = true
+        } else {
+            desable.checked = true
+            enable.checked = false
+            isEnable = false
+        }
+
+        if (config.Interaction.isAutoStart == true) {
+            entip.checked = true
+            destip.checked = false
+            isEntip = true
+        } else {
+            destip.checked = true
+            entip.checked = false
+            isEntip = false
+        }
     }
 
 
