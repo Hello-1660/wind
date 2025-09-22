@@ -105,6 +105,7 @@ const createSettingWindow = () => {
         width: 900,
         height: 700,
         resizable: false,
+        title: '设置',
         icon: path.join(__dirname, './icons/wind.png'),
         webPreferences: {
             nodeIntegration: true,
@@ -286,12 +287,99 @@ ipcMain.handle('close-tip', () => {
     tip = null
 })
 
+// 关闭设置界面
+ipcMain.handle('close-setting-window', () => {
+    settingWindow.close()
+    settingWindow = null
+})
+
+// 获取父窗口信息
+ipcMain.handle('get-tip-parent-info', (event) => {
+    const childWindow = BrowserWindow.fromWebContents(event.sender)
+    const parentWindow = childWindow.getParentWindow()
+
+    if (parentWindow) {
+        return parentWindow.getTitle()
+    } else {
+        return null
+    }
+})
+
 
 // 接受数据
 ipcMain.handle(('get-tip-data'), (event, data) => {
-    // 获取数据
+    const tipWindow = BrowserWindow.fromWebContents(event.sender)
+    const parentWindow = tipWindow.getParentWindow()
+
+    if (parentWindow) parentWindow.webContents.send('tip-data-response', data) 
+
     return {success: true, message: '获取成功'}
 })
+
+
+// 接受配置文件的数据
+ipcMain.handle('get-setting-data', (event, data) => {
+    // 将数据保存到配置文件
+    try {
+        // 修正主窗口大小
+        let width
+        let height 
+
+        let timeWidth = +data.ui.timeFontSize * 5
+        let timeHeight = +data.ui.timeFontSize
+        let dataWidth = +data.ui.timeFontSize * (data.ui.dateContent ? data.ui.dateContent.length : 10)
+        let dataHeight = +data.ui.timeFontSize
+
+        width = Math.max(timeWidth, dataWidth) + 20
+        height = timeHeight + dataHeight + 80
+
+
+        // 映射配置数据到setting.properties文件的键名
+        const configMap = {
+            'WinWidth': width,
+            'WinHeight': height,
+            'bgc': data.ui.bgc,
+            'font': data.ui.font,
+            'fontSize': data.ui.fontSize,
+            'fontColor': data.ui.fontColor,
+            'btnBorderColor': data.ui.btnBorderColor,
+            'btnBgColor': data.ui.btnColor,
+            'btnFontColor': data.ui.btnFontColor,
+            'btnFontSize': data.ui.btnFontSize,
+            'textBorderColor': data.ui.textBorderColor,
+            'textBgColor': data.ui.textColor,
+            'textFontColor': data.ui.textFontColor,
+            'textFontSize': data.ui.textFontSize,
+            'timeFontColor': data.ui.timeFontColor,
+            'timeFontSize': data.ui.timeFontSize,
+            'dateFontColor': data.ui.dateFontColor,
+            'dateFontSize': data.ui.dateFontSize,
+            'dateFormat': data.ui.dateFormat,
+            'dateContent': data.ui.dateContent.trim(),
+            'tipStyle': data.ui.tipStyle,
+            'addTodo': data.Interaction.addTodo,
+            'showTodo': data.Interaction.showTodo,
+            'updateTodo': data.Interaction.updateTodo,
+            'isRemind': data.Interaction.isRemind,
+            'isAutoStart': data.Interaction.isAutoStart
+        }
+
+        // 写入配置文件
+        writeSettingFile(configMap)
+    }catch (error) {
+        console.error('保存配置文件失败：' + error)
+    }    
+})
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -308,10 +396,12 @@ function writeSettingFile(data) {
 
         // 更改配置文件
         for (const [key, value] of Object.entries(data)) {
+
+            const trimmedValue = typeof value === 'string' ? value.trim() : value 
             const regex = new RegExp(`(${key}\\s*=\\s*).*`, 'i')
 
             if (regex.test(settingContent)) {
-                settingContent = settingContent.replace(regex, `$1${value}`)
+                settingContent = settingContent.replace(regex, `$1${trimmedValue}`)
             }
         }
 

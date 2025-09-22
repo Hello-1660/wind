@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const fontFamilys = document.querySelector('#fontFamilys')
     const tipStyle = document.querySelector('.tipStyle')
     const tipStyles = document.querySelector('#tipStyles')
-    
+
     // 数据回显
     const fontSize = document.querySelector('#fontSize')
     const fontFamilyHead = document.querySelector('#fontFamilyHead')
@@ -38,12 +38,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 是否开机自启
     const enable = document.querySelector('#enable')
     const desable = document.querySelector('#desable')
-    let isEnable = null
+    let isEnable = enable.checked ? true : false
 
     // 是否开启提示
     const entip = document.querySelector('#entip')
     const destip = document.querySelector('#destip')
-    let isEntip = null
+    let isEntip = entip.checked ? true : false
 
     // 字体样式表
     const fonts = {
@@ -63,9 +63,66 @@ document.addEventListener('DOMContentLoaded', async () => {
     setConfig()
 
 
-    
-    // 设置数据回显
-    
+    // 弹窗返回数据
+    const handleTipResponse = (event, data) => {
+        if (data === true) {
+            let selectFont = 'Microsoft YaHei'
+            let selectTip = 'default'
+
+            for (const [key, value] of Object.entries(fonts)) {
+                if (value === fontFamilyHead.innerText) {
+                    selectFont = key
+                    break
+                }
+            }
+
+            for (const [key, value] of Object.entries(tips)) {
+                if (value === tipStyleHead.innerText) {
+                    selectTip = key
+                    break
+                }
+            }
+
+
+
+            const setConfig = {
+                ui: {
+                    bgc: bgc.value,
+                    font: selectFont,
+                    fontSize: fontSize.value,
+                    fontColor: fontColor.value,
+                    btnBorderColor: buttonBorderColor.value,
+                    btnBgColor: buttonColor.value,
+                    btnFontColor: buttonFontColor.value,
+                    btnFontSize: buttonFontSize.value,
+                    textBorderColor: textBorderColor.value,
+                    textBgColor: textColor.value,
+                    textFontColor: textFontColor.value,
+                    textFontSize: textFontSize.value,
+                    timeFontColor: timeFontColor.value,
+                    timeFontSize: timeFontSize.value,
+                    dateFontColor: dateFontColor.value,
+                    dateFontSize: dateFontSize.value,
+                    dateFormat: dateFormat.value,
+                    dateContent: dateContent.value.trim(),
+                    tipStyle: selectTip
+                },
+                Interaction: {
+                    addTodo: addTodo.value,
+                    showTodo: showTodo.value,
+                    updateTodo: updateTodo.value,
+                    isRemind: isEnable,
+                    isAutoStart: isEntip
+                }
+            }
+
+            window.electronAPI.sendSettingData(setConfig)
+        }
+
+    }
+    window.electronAPI.onTipDataResponse(handleTipResponse)
+
+
 
 
 
@@ -118,7 +175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-        // 渲染属性值
+        // 配置文件数回显
         fontSize.value = config.ui.fontSize
         fontFamilyHead.innerText = fonts[config.ui.font]
         fontColor.value = config.ui.fontColor
@@ -171,11 +228,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // 下拉框
-
     fontFamily.addEventListener('click', (e) => {
         e.stopPropagation()
         fontFamilys.style.maxHeight = 500 + 'px'
     })
+
 
     // 下拉点击条目
     const fontFamilysItem = fontFamilys.querySelectorAll('div')
@@ -193,6 +250,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     tipStyle.addEventListener('click', (e) => {
         e.stopPropagation()
         tipStyles.style.maxHeight = 500 + 'px'
+    })
+
+
+    // 单选按钮点击事件
+    enable.addEventListener('click', () => {
+        isEnable = true
+    })
+
+    desable.addEventListener('click', () => {
+        isEnable = false
+    })
+
+    entip.addEventListener('click', () => {
+        isEntip = true
+    })
+
+    destip.addEventListener('click', () => {
+        isEntip = false
     })
 
     const tipStylesItem = tipStyles.querySelectorAll('div')
@@ -223,5 +298,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     fontFamilys.addEventListener('click', (e) => {
         e.stopPropagation()
+    })
+
+
+
+    document.addEventListener('contextmenu', async (e) => {
+        window.electronAPI.closeSetting()
+    })
+
+
+
+    window.addEventListener('beforeunload', () => {
+        // 移除之前添加的监听器
+        window.electronAPI.removeTipDataResponseListener(handleTipResponse);
     })
 })

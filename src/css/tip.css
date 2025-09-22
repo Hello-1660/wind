@@ -47,3 +47,13 @@ img {
 .close:hover {
     cursor: pointer;
 }
+
+
+.context {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+    font-size: 14px;
+    height: calc(100vh - 50px); 
+}
