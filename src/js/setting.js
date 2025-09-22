@@ -164,6 +164,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+    // 双击保存
+    document.addEventListener('dblclick', () => {
+        window.electronAPI.createTip()
+    })
 
 
     // 下拉框
@@ -203,7 +207,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    // // 点击其他区域关闭
+    // 点击其他区域关闭
     document.addEventListener('click', () => {
         fontFamilys.style.maxHeight = 0 + 'px'
         tipStyles.style.maxHeight = 0 + 'px'
@@ -211,7 +215,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // 防止点击自生是隐藏
-
     tipStyles.addEventListener('click', (e) => {
         e.stopPropagation()
     })

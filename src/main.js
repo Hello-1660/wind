@@ -12,6 +12,8 @@ const fs = require('fs')
 
 // 系统托盘
 let tray = null
+// 弹窗
+let tip = null
 // 主界面
 let mainWindow = null
 // 设置界面
@@ -85,9 +87,7 @@ const createMainWindow = () => {
         })
     })
 
-    mainWindow.on('closed', () => {
-        mainWindow = null
-    })
+    mainWindow.on('closed', () => mainWindow = null)
 
     mainWindow.loadFile(path.join(__dirname, 'index.html'))
 }
@@ -116,17 +116,10 @@ const createSettingWindow = () => {
     // 隐藏菜单栏
     settingWindow.setMenu(null)
 
-    settingWindow.on('closed', () => {
-        settingWindow = null
-    })
+    settingWindow.on('closed', () => settingWindow = null)
 
     settingWindow.loadFile(path.join(__dirname, './html/setting.html'))
 }
-
-
-
-
-
 
 
 
@@ -206,6 +199,36 @@ const createTray = () => {
 
 
 
+// 弹窗
+const createTip = (parentWindow) => {
+    if (tip) tip.close()
+
+    tip = new BrowserWindow({
+        width: 400,
+        height: 200,
+        frame: false,
+        resizable: false,
+        icon: path.join(__dirname, 'icon.png'),
+        parent: parentWindow,
+        modal: true,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js'),
+        }
+    })
+
+
+    tip.on('blur', () => {
+        
+    })
+
+    tip.on('closed', () => tip = null)
+
+    tip.loadFile(path.join(__dirname, 'html/tip.html'))
+}
+
+
 
 
 
@@ -249,10 +272,26 @@ ipcMain.handle('get-setting-model', () => {
 })
 
 
+// 创建弹窗
+ipcMain.handle('create-tip', async (event) => {
+    const parentWindow = BrowserWindow.fromWebContents(event.sender)
+    const result = await createTip(parentWindow)
+    return result
+})
 
 
+// 关闭弹窗
+ipcMain.handle('close-tip', () => {
+    tip.close()
+    tip = null
+})
 
 
+// 接受数据
+ipcMain.handle(('get-tip-data'), (event, data) => {
+    // 获取数据
+    return {success: true, message: '获取成功'}
+})
 
 
 
