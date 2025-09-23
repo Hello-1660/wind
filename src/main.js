@@ -8,8 +8,6 @@ const fs = require('fs')
 
 
 
-
-
 // 系统托盘
 let tray = null
 // 弹窗
@@ -18,7 +16,8 @@ let tip = null
 let mainWindow = null
 // 设置界面
 let settingWindow = null
-
+// 展示界面
+let showWindow = null
 
 
 
@@ -126,6 +125,30 @@ const createSettingWindow = () => {
 
 
 
+// 便签展示界面
+const createShowWindow = () => {
+    if (showWindow) {
+        return
+    }
+
+
+    showWindow = new BrowserWindow({
+        width: 400,
+        height: 300,
+        resizable: false,
+        icon: path.join(__dirname, './icons/wind.png'),
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js')
+        }
+    })
+
+
+    showWindow.setMenu(null)
+    showWindow.on('closed', () => showWindow = null)
+    showWindow.loadFile(path.join(__dirname, './html/showTodo.html'))
+}
 
 
 // 创建系统托盘
@@ -221,7 +244,7 @@ const createTip = (parentWindow) => {
 
 
     tip.on('blur', () => {
-        
+
     })
 
     tip.on('closed', () => tip = null)
@@ -247,7 +270,8 @@ const createTip = (parentWindow) => {
 
 
 app.on('ready', () => {
-    createMainWindow()
+    // createMainWindow()
+    createShowWindow()
     createTray()
 })
 
@@ -287,6 +311,7 @@ ipcMain.handle('close-tip', () => {
     tip = null
 })
 
+
 // 关闭设置界面
 ipcMain.handle('close-setting-window', () => {
     settingWindow.close()
@@ -311,9 +336,9 @@ ipcMain.handle(('get-tip-data'), (event, data) => {
     const tipWindow = BrowserWindow.fromWebContents(event.sender)
     const parentWindow = tipWindow.getParentWindow()
 
-    if (parentWindow) parentWindow.webContents.send('tip-data-response', data) 
+    if (parentWindow) parentWindow.webContents.send('tip-data-response', data)
 
-    return {success: true, message: '获取成功'}
+    return { success: true, message: '获取成功' }
 })
 
 
@@ -323,7 +348,7 @@ ipcMain.handle('get-setting-data', (event, data) => {
     try {
         // 修正主窗口大小
         let width
-        let height 
+        let height
 
         let timeWidth = +data.ui.timeFontSize * 5
         let timeHeight = +data.ui.timeFontSize
@@ -366,10 +391,36 @@ ipcMain.handle('get-setting-data', (event, data) => {
 
         // 写入配置文件
         writeSettingFile(configMap)
-    }catch (error) {
+    } catch (error) {
         console.error('保存配置文件失败：' + error)
-    }    
+    }
 })
+
+
+// 获取待办事项
+ipcMain.handle('get-todo-list', () => {
+    return new TodoManager().loadTodos()
+})
+
+
+// 添加待办
+ipcMain.on('add-todo', (event, data) => { 
+    console.log(data)
+    // new TodoManager().addTodo(data)
+})
+
+
+// 修改待办
+ipcMain.on('update-todo', (event, data) => { 
+    new TodoManager().updateTodo(data)
+})
+
+
+ipcMain.on('delete-todo', (event, data) => { 
+    new TodoManager().deleteTodo(data)
+})
+
+
 
 
 
@@ -397,7 +448,7 @@ function writeSettingFile(data) {
         // 更改配置文件
         for (const [key, value] of Object.entries(data)) {
 
-            const trimmedValue = typeof value === 'string' ? value.trim() : value 
+            const trimmedValue = typeof value === 'string' ? value.trim() : value
             const regex = new RegExp(`(${key}\\s*=\\s*).*`, 'i')
 
             if (regex.test(settingContent)) {
@@ -503,7 +554,7 @@ function getSetting() {
     // 解析快捷键配置
     const parseShortcut = (shortcutStr, defaultVal) => {
         if (shortcutStr) {
-            return shortcutStr.split(',').map(key => key.trim())
+            return shortcutStr.split('+').map(key => key.trim())
         }
         return defaultVal
     }
@@ -588,36 +639,62 @@ function getSetting() {
 
 
 
-// 窗口数据模型
-class WindowModel {
-    constructor(winX, winY, winWidth, winHeight, theme, font, fontSize, fontColor, btnBorderColor, btnBgColor, btnFontColor, btnFontSize, textBorderColor, textBgColor, textFontColor, textFontSize, timeFontColor, timeFontSize, dateFontColor, dateFontSize, dateFormat, dateContent, tipStyle, addTodo, showTodo, updateTodo, isRemind, isAutoStart) {
-        this.winX = winX
-        this.winY = winY
-        this.winWidth = winWidth
-        this.winHeight = winHeight
-        this.theme = theme
-        this.font = font
-        this.fontSize = fontSize
-        this.fontColor = fontColor
-        this.btnBorderColor = btnBorderColor
-        this.btnBgColor = btnBgColor
-        this.btnFontColor = btnFontColor
-        this.btnFontSize = btnFontSize
-        this.textBorderColor = textBorderColor
-        this.textBgColor = textBgColor
-        this.textFontColor = textFontColor
-        this.textFontSize = textFontSize
-        this.timeFontColor = timeFontColor
-        this.timeFontSize = timeFontSize
-        this.dateFontColor = dateFontColor
-        this.dateFontSize = dateFontSize
-        this.dateFormat = dateFormat
-        this.dateContent = dateContent
-        this.tipStyle = tipStyle
-        this.addTodo = addTodo
-        this.showTodo = showTodo
-        this.updateTodo = updateTodo
-        this.isRemind = isRemind
-        this.isAutoStart = isAutoStart
+class TodoManager {
+    constructor(storagePath = path.join(__dirname, 'todos.json')) {
+        this.storagePath = storagePath
+    }
+
+
+    async loadTodos() {
+        try {
+            const data = await fs.readFile(this.storagePath, 'utf8')
+            return JSON.parse(data)
+        } catch (error) {
+            // 文件找不到创建默认结构
+            return {
+                version: '2.0',
+                lastUpdate: Date.now().toString,
+                todos: []
+            }
+        }
+    }
+
+
+
+
+    async saveTodos(todoData) {
+        todoData.lastUpdate = Date.now().toString()
+        await fs.writeFile(this.storagePath, JSON.stringify(todoData, null, 2))
+    }
+
+
+
+    async addTodo(todo) {
+        const data = await this.loadTodos()
+        todo.id = Date.now().toString()
+        data.todos.push(todo)
+        await this.saveTodos(data)
+        return todo.id
+    }
+
+
+    async updateTodo(id, updates) {
+        const data = await this.loadTodos()
+        const index = data.todos.findIndex(todo => todo.id === id)
+
+        if (index !== -1) {
+            data.todos[index] = {
+                ...data.todos[index],
+                ...updates
+            }
+
+            await this.saveTodos(data)
+        }
+    }
+
+    async deleteTodo(id) {
+        const data = await this.loadTodos()
+        data.todos = data.todos.filter(todo => todo.id !== id)
+        await this.saveTodos(data)
     }
 }

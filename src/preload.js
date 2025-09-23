@@ -12,5 +12,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     sendSettingData: (data) => ipcRenderer.invoke('get-setting-data', data),
     getParentWindowInfo: () => ipcRenderer.invoke('get-tip-parent-info'),
     onTipDataResponse: (callback) => ipcRenderer.on('tip-data-response', callback),
-    removeTipDataResponseListener: (callback) => ipcRenderer.removeListener('tip-data-response', callback)
+    removeTipDataResponseListener: (callback) => ipcRenderer.removeListener('tip-data-response', callback),
+    sendAddTodo: (data) => ipcRenderer.send('add-todo', data),
+    sendDeleteTodo: (data) => ipcRenderer.send('delete-todo', data),
+    sendUpdateTodo: (data) => ipcRenderer.send('update-todo', data)
 })

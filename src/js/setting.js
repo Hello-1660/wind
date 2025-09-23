@@ -126,8 +126,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-
-
     // 渲染配置
     function setConfig() {
         if (!config) return
@@ -195,9 +193,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         dateFormat.value = config.ui.dateFormat
         dateContent.value = config.ui.dateContent
         tipStyleHead.innerText = tips[config.ui.tipStyle]
-        addTodo.value = config.Interaction.addTodo
-        showTodo.value = config.Interaction.showTodo
-        updateTodo.value = config.Interaction.updateTodo
+        addTodo.value = config.Interaction.addTodo[0] + '+' + config.Interaction.addTodo[1]
+        showTodo.value = config.Interaction.showTodo[0] + '+' + config.Interaction.showTodo[1]
+        updateTodo.value = config.Interaction.updateTodo[0] + '+' + config.Interaction.updateTodo[1]
 
         if (config.Interaction.isRemind == true) {
             enable.checked = true
@@ -221,8 +219,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+
     // 双击保存
-    document.addEventListener('dblclick', () => {
+    document.addEventListener('contextmenu', () => {
         window.electronAPI.createTip()
     })
 
@@ -232,6 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.stopPropagation()
         fontFamilys.style.maxHeight = 500 + 'px'
     })
+  
 
 
     // 下拉点击条目
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    document.addEventListener('contextmenu', async (e) => {
+    document.addEventListener('dblclick', async (e) => {
         window.electronAPI.closeSetting()
     })
 
