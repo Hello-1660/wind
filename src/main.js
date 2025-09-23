@@ -66,7 +66,7 @@ const createMainWindow = () => {
         transparent: true,
         resizable: false,
         skipTaskbar: true,
-        icon: path.join(__dirname, 'icon.png'),
+        // icon: path.join(__dirname, 'icon.png'),
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: true,

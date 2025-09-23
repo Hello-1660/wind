@@ -10,7 +10,7 @@
       "status": "pending",
       "deadline": "2024-01-20T18:00:00Z",
       "remindTime": "2024-01-20T09:00:00Z",
-      "priority": "high",
+      "priority": "0",
       "location": "超市"
     }
   ]

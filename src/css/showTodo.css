@@ -48,16 +48,14 @@
 
 .todo:hover {
     background-color: rgba(255, 255, 255, 0.15);
-    /* 背景胡话 */
     backdrop-filter: blur(8px);
-    /* 兼容 Safari */
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 
 .todo_time {
-    width: 30%;
+    width: 29%;
     height: 80%;
     margin: 10px;
     padding: 5px;
@@ -136,7 +134,7 @@
 
 #showTodo {
     box-sizing: border-box;
-    width: 70%;
+    width: 69%;
     height: 760px;
     margin-left: 20px;
     padding: 20px 10px;
@@ -149,4 +147,164 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+.set_todo_content {
+    box-sizing: border-box;
+    width: 100%;
+    height: 70%;
+}
+
+
+.set_todo_theme {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    height: 30%;
+    padding: 10px;
+}
+
+.set_todo_theme:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.set_todo_theme > label, #todo_theme, .set_todo_content_write > label, #todo_content {
+    margin-top: 30px;
+}
+
+#todo_theme {
+    width: 40%;
+    height: 30px;
+    outline: none;
+    border-radius: 5px;
+    padding: 0 5px;
+}
+
+.set_todo_content_write {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 10px;
+    margin-top: 10px;
+    width: 100%;
+    height: 70%;
+    border-radius: 5px;
+}
+
+.set_todo_content_write:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+#todo_content {
+    width: 80%;
+    height: 80%;
+    outline: none;
+    border-radius: 5px;
+    padding: 10px;
+    resize: none;
+}
+
+.set_todo_status {
+    box-sizing: border-box;
+    margin-top: 20px;
+    padding: 10px;
+    width: 100%;
+    height: 30%;
+    /* background-color: pink; */
+    border-radius: 5px;
+}
+
+#add_status {
+    position: relative;
+    width: 25px;
+    height: 25px;
+    font-size: 20px;
+    color: #b3b3b3;
+    text-align: center;
+    line-height: 25px;
+    border: 1px solid rgb(188, 188, 188);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.set_todo_status:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+#status {
+    /* display: none; */
+    position: absolute;
+    top: 0;
+    left: 30px;
+    font-size: 14px;
+    border: 1px solid rgb(188, 188, 188);
+    border-radius: 5px;
+    padding: 2px;
+}
+
+#status > div:hover {
+    background-color: #d8d8d8;
+}
+
+#add_remind, #add_address {
+    width: 100px;
+    height: 30px;
+    color: #464646;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+}
+
+#show_status {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    margin-top: 50px;
+    /* background-color: yellow; */
+}
+
+.show_status_item {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    font-size: 14px;
+    height: 40px;
+    color: #7b7b7b;
+    line-height: 40px;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgb(94, 94, 94);
+    margin-left: 10px;
+    padding: 0 10px;
+    border-radius: 5px;
+    cursor: default;
+}
+
+
+#delete_item {
+    /* display: none; */
+    width: 20px;
+    height: 20px;
+}
+
+#delete_item:hover {
+    cursor: pointer;
 }
