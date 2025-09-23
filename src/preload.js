@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getSettingFile: () => ipcRenderer.invoke('getSettingFile'),
     getSettingModel: () => ipcRenderer.invoke('get-setting-model'),
     createSettingWindow: () => ipcRenderer.invoke('create-setting-window'),
+    createShowWindow: () => ipcRenderer.invoke('create-show-window'),
     createTip: (event) => ipcRenderer.invoke('create-tip'),
     closeSetting: () => ipcRenderer.invoke('close-setting-window'),
     closeTip: () => ipcRenderer.invoke('close-tip'),

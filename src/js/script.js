@@ -39,6 +39,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+    date.addEventListener('click', () => {
+        window.electronAPI.createShowWindow()
+    })
+
+
+
     // 日期格式化函数
     function updateDate(format) {
         const now = new Date()

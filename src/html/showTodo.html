@@ -1,16 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>查看待办</title>
+    <link rel="stylesheet" href="../css/showTodo.css">
+    <script src="../js/showTodo.js"></script>
 </head>
+
 <body>
-    <h1>showTodo</h1>
-    <script>
-        document.addEventListener('click', () => {
-            window.electronAPI.sendAddTodo('addTodo')
-        }) 
-    </script>
+    <div class="wind">
+        <div id="todoList">
+            <div class="todo">
+                <div class="todo_time">
+                    <div class="todo_time_day">
+                        14
+                    </div>
+
+                    <div class="todo_time_month">
+                        09
+                    </div>
+                </div>
+
+                <div class="todo_content">
+                    <div class="todo_content_title">132132321132132321132132321132132321132132321</div>
+                    <div class="todo_content_status">已完成</div>
+                </div>
+            </div>
+            <div class="todo">
+                
+            </div>
+
+            <div class="todo">
+                
+            </div>
+
+            <div class="todo">
+                
+            </div>
+
+            <div class="todo">
+                
+            </div>
+
+            <div class="todo">
+                
+            </div>
+
+            <div class="todo">
+                
+            </div>
+            <div class="todo">
+                
+            </div>
+            <div class="todo">
+                
+            </div>
+            <div class="todo">
+                
+            </div>
+        </div>
+
+        <div id="showTodo">
+            52
+        </div>
+    </div>
 </body>
+
 </html>

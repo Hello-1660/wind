@@ -115,9 +115,7 @@ const createSettingWindow = () => {
 
     // 隐藏菜单栏
     settingWindow.setMenu(null)
-
     settingWindow.on('closed', () => settingWindow = null)
-
     settingWindow.loadFile(path.join(__dirname, './html/setting.html'))
 }
 
@@ -133,8 +131,8 @@ const createShowWindow = () => {
 
 
     showWindow = new BrowserWindow({
-        width: 400,
-        height: 300,
+        width: 1200,
+        height: 800,
         resizable: false,
         icon: path.join(__dirname, './icons/wind.png'),
         webPreferences: {
@@ -270,8 +268,7 @@ const createTip = (parentWindow) => {
 
 
 app.on('ready', () => {
-    // createMainWindow()
-    createShowWindow()
+    createMainWindow()
     createTray()
 })
 
@@ -302,6 +299,12 @@ ipcMain.handle('create-tip', async (event) => {
     const parentWindow = BrowserWindow.fromWebContents(event.sender)
     const result = await createTip(parentWindow)
     return result
+})
+
+
+// 创建展示界面
+ipcMain.handle('create-show-window', () => {
+    createShowWindow()
 })
 
 
