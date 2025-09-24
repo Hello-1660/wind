@@ -17,10 +17,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const todoTheme = document.querySelector('#todo_theme')
     const todoContent = document.querySelector('#todo_content')
     const addRemind = document.querySelector('#add_remind')
+    const addStop = document.querySelector('#add_stop')
     const addAddress = document.querySelector('#add_address')
     const addStatus = document.querySelector('#add_status')
     const status = document.querySelector('#status')
-    
+    const showStatus = document.querySelector('#show_status')
+
+
+    // 展示时间
+    let showYear = false
+    // 提醒时间计数
+    let remindTimeCount = 0
+    // 截至时间计数
+    let deadlineTimeCount = 0
+    // 地点计数
+    let addressCount = 0
 
     setConfig()
     showTodo()
@@ -36,35 +47,204 @@ document.addEventListener('DOMContentLoaded', async () => {
             status.classList.add('none')
         })
 
-        status.addEventListener('mouseover', (e) => { 
+        status.addEventListener('mouseover', (e) => {
             status.classList.remove('none')
         })
     }
 
-    if (deleteItemList) {
-        deleteItemList.forEach(item => {
-            item.addEventListener('click', () => {
-                item.parentNode.remove()
+
+    // 添加提醒
+    if (addRemind) {
+        addRemind.addEventListener('click', () => {
+            status.classList.add('none')
+
+            if (remindTimeCount >= 1) return
+
+            // 创建时间输入框
+            const timeInput = document.createElement('input')
+            timeInput.type = 'datetime-local'
+            timeInput.className = 'remind_time_input'
+
+            // 获取当前时间
+            const now = new Date()
+            const year = now.getFullYear()
+            const month = String(now.getMonth + 1).padStart(2, '0')
+            const day = String(now.getDate()).padStart(2, '0')
+            const hour = String(now.getHours()).padStart(2, '0')
+            const minute = String(now.getMinutes()).padStart(2, '0')
+            timeInput.value = `${year}-${month}-${day}T${hour}:${minute}`
+
+            // 确认按钮
+            const confirmBtn = document.createElement('button')
+            confirmBtn.textContent = '确认'
+            confirmBtn.className = 'confirm_btn'
+
+
+            // 创建容器
+            const remindBox = document.createElement('div')
+            remindBox.className = 'show_status_item'
+            remindBox.appendChild(timeInput)
+            remindBox.appendChild(confirmBtn)
+
+
+            // 添加确认按钮点击事件
+            confirmBtn.addEventListener('click', () => {
+                const remindTime = timeInput.value
+
+                if (!remindTime) return
+
+                const date = remindTime.split('T')[0]
+                const time = remindTime.split('T')[1]
+
+                remindBox.innerHTML = `
+                    <div id="delete_item">×</div>
+                    <div id="status_item">提醒时间 ${date} ${time}</div>
+                `
+
+                // 删除事件
+                const deleteItem = remindBox.querySelector('#delete_item')
+                if (deleteItem) {
+                    deleteItem.addEventListener('click', () => {
+                        remindBox.remove()
+                        remindTimeCount--
+                    })
+                }
             })
+
+            showStatus.appendChild(remindBox)
+            remindTimeCount++
+        })
+    }
+
+    // 添加截止时间
+    if (addStop) {
+        addStop.addEventListener('click', () => {
+            status.classList.add('none')
+
+            if (deadlineTimeCount >= 1) return
+
+            // 创建时间输入框
+            const timeInput = document.createElement('input')
+            timeInput.type = 'datetime-local'
+            timeInput.className = 'stop_time_input'
+
+            // 获取当前时间
+            const now = new Date()
+            const year = now.getFullYear()
+            const month = String(now.getMonth + 1).padStart(2, '0')
+            const day = String(now.getDate()).padStart(2, '0')
+            const hour = String(now.getHours()).padStart(2, '0')
+            const minute = String(now.getMinutes()).padStart(2, '0')
+            timeInput.value = `${year}-${month}-${day}T${hour}:${minute}`
+
+            // 确认按钮
+            const confirmBtn = document.createElement('button')
+            confirmBtn.textContent = '确认'
+            confirmBtn.className = 'confirm_btn'
+
+
+            // 创建容器
+            const stopBox = document.createElement('div')
+            stopBox.className = 'show_status_item'
+            stopBox.appendChild(timeInput)
+            stopBox.appendChild(confirmBtn)
+
+
+            // 添加确认按钮点击事件
+            confirmBtn.addEventListener('click', () => {
+                const stopTime = timeInput.value
+
+                if (!stopTime) return
+
+                const date = stopTime.split('T')[0]
+                const time = stopTime.split('T')[1]
+
+                stopBox.innerHTML = `
+                    <div id="delete_item">×</div>
+                    <div id="status_item">截止时间 ${date} ${time}</div>
+                `
+
+                // 删除事件
+                const deleteItem = stopBox.querySelector('#delete_item')
+                if (deleteItem) {
+                    deleteItem.addEventListener('click', () => {
+                        stopBox.remove()
+                        deadlineTimeCount--
+                    })
+                }
+            })
+
+            showStatus.appendChild(stopBox)
+            deadlineTimeCount++
+        })
+    }
+
+    // 添加地点
+    if (addAddress) {
+        addAddress.addEventListener('click', () => {
+            status.classList.add('none')
+
+            if (addressCount >= 5) return
+
+            // 创建地点输入框
+            const addressInput = document.createElement('input')
+            addressInput.type = 'text'
+            addressInput.className = 'address_input'
+
+            // 确认按钮
+            const confirmBtn = document.createElement('button')
+            confirmBtn.textContent = '确认'
+            confirmBtn.className = 'confirm_btn'
+
+
+            // 创建容器
+            const addressBox = document.createElement('div')
+            addressBox.className = 'show_status_item'
+            addressBox.appendChild(addressInput)
+            addressBox.appendChild(confirmBtn)
+
+
+            // 添加确认按钮点击事件
+            confirmBtn.addEventListener('click', () => {
+                const address = addressInput.value
+
+                if (!address) return
+
+                addressBox.innerHTML = `
+                    <div id="delete_item">×</div>
+                    <div id="status_item">地点 ${address}</div>
+                `
+
+                // 删除事件
+                const deleteItem = addressBox.querySelector('#delete_item')
+                if (deleteItem) {
+                    deleteItem.addEventListener('click', () => {
+                        addressBox.remove()
+                        addressCount--
+                    })
+                }
+            })
+
+            showStatus.appendChild(addressBox)
+            addressCount++
         })
     }
 
 
-    
     // 便签数据回显
     function showTodo() {
         if (!todoList) return
 
         const list = todoList.todos
-        
+
         if (!list || list.length === 0) return
 
-        list.forEach(item => { 
+        list.forEach(item => {
             const createTime = new Date(item.createdTime)
             const day = createTime.getDate()
             const month = createTime.getMonth() + 1 + '月'
             const year = createTime.getFullYear()
-        
+
             const todo = document.createElement('div')
             todo.className = 'todo'
 
@@ -86,9 +266,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
             todo.setAttribute('id', item.id)
-            todo.setAttribute('createTime', item.createTime)  
+            todo.setAttribute('createTime', item.createTime)
             todo.setAttribute('theme', item.theme)
-            todo.setAttribute('content', item.content)  
+            todo.setAttribute('content', item.content)
             todo.setAttribute('deadline', item.deadline)
             todo.setAttribute('remindTime', item.remindTime)
             todo.setAttribute('priority', item.priority)
@@ -97,15 +277,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const timeNode = todo.querySelector('.todo_time')
 
-            timeNode.addEventListener('mouseenter', () => { 
-                timeNode.innerHTML = `
-                <div class="todo_time_year none">
-                        ${year}
-                </div>`
-            })
-            
-            timeNode.addEventListener('mouseleave', () => {
-                timeNode.innerHTML = `
+            timeNode.addEventListener('click', () => {
+                if (showYear) {
+                    timeNode.innerHTML = `
                 <div class="todo_time_day">
                     ${day}
                 </div>
@@ -113,8 +287,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="todo_time_month">
                     ${month}
                 </div>`
+
+                    showYear = false
+                } else {
+                    timeNode.innerHTML = `
+                <div class="todo_time_year">
+                        ${year}
+                </div>`
+
+                    showYear = true
+                }
             })
-    
+
             showTodoList.appendChild(todo)
         })
     }
