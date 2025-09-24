@@ -298,6 +298,7 @@
     width: 100%;
     height: 100px;
     margin-top: 60px;
+    overflow-y: auto;
 }
 
 .show_status_item {
@@ -313,6 +314,7 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border: 1px solid rgb(94, 94, 94);
     margin-left: 10px;
+    margin-top: 4px;
     padding: 0 10px;
     border-radius: 5px;
     cursor: default;
@@ -321,7 +323,7 @@
 }
 
 .show_status_item:hover {
-    transform: translateY(-5px)
+    transform: translateY(-3px)
 }
 
 

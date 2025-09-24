@@ -91,7 +91,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             confirmBtn.addEventListener('click', () => {
                 const remindTime = timeInput.value
 
-                if (!remindTime) return
+                if (!remindTime) {
+                    remindBox.remove()
+                    remindTimeCount--
+                    return
+                }
 
                 const date = remindTime.split('T')[0]
                 const time = remindTime.split('T')[1]
@@ -154,7 +158,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             confirmBtn.addEventListener('click', () => {
                 const stopTime = timeInput.value
 
-                if (!stopTime) return
+                if (!stopTime) {
+                    stopBox.remove()
+                    deadlineTimeCount--
+                    return
+                }
 
                 const date = stopTime.split('T')[0]
                 const time = stopTime.split('T')[1]
@@ -208,7 +216,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             confirmBtn.addEventListener('click', () => {
                 const address = addressInput.value
 
-                if (!address) return
+                if (!address) {
+                    addressBox.remove()
+                    addressCount--
+                    return
+                }
 
                 addressBox.innerHTML = `
                     <div id="delete_item">×</div>
