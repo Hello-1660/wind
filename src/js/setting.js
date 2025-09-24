@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 item.style.fontSize = config.ui.btnFontSize + 'px'
             }
 
-            // 
+            // 文本框属性
             if (item.type === 'text') {
                 item.style.backgroundColor = config.ui.textBgColor
                 item.style.borderColor = config.ui.textBorderColor
