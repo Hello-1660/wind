@@ -1,9 +1,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // 获取数据模型
     const config = await window.electronAPI.getSettingModel()
+    // 获取便签数据
+    const todoList = await window.electronAPI.getTodoList()
 
     // 渲染配置
     const body = document.body
+    const showTodoList = document.querySelector('#todoList')
     const input = document.querySelectorAll('input')
     const deleteItemList = document.querySelectorAll('#delete_item')
     const showStatusItemList = document.querySelectorAll('.show_status_item')
@@ -20,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
 
     setConfig()
-
+    showTodo()
 
 
     addStatus.addEventListener('mouseenter', () => {
@@ -43,6 +46,76 @@ document.addEventListener('DOMContentLoaded', async () => {
             item.addEventListener('click', () => {
                 item.parentNode.remove()
             })
+        })
+    }
+
+
+    
+    // 便签数据回显
+    function showTodo() {
+        if (!todoList) return
+
+        const list = todoList.todos
+        
+        if (!list || list.length === 0) return
+
+        list.forEach(item => { 
+            const createTime = new Date(item.createdTime)
+            const day = createTime.getDate()
+            const month = createTime.getMonth() + 1 + '月'
+            const year = createTime.getFullYear()
+        
+            const todo = document.createElement('div')
+            todo.className = 'todo'
+
+            todo.innerHTML = `
+                <div class="todo_time">
+                    <div class="todo_time_day">
+                        ${day}
+                    </div>
+
+                    <div class="todo_time_month">
+                        ${month}
+                    </div>
+                </div>
+
+                <div class="todo_content">
+                    <div class="todo_content_title">${item.theme || item.content || '无主题'}</div>
+                    <div class="todo_content_status">${item.status}</div>
+                </div>`
+
+
+            todo.setAttribute('id', item.id)
+            todo.setAttribute('createTime', item.createTime)  
+            todo.setAttribute('theme', item.theme)
+            todo.setAttribute('content', item.content)  
+            todo.setAttribute('deadline', item.deadline)
+            todo.setAttribute('remindTime', item.remindTime)
+            todo.setAttribute('priority', item.priority)
+            todo.setAttribute('location', item.location)
+
+
+            const timeNode = todo.querySelector('.todo_time')
+
+            timeNode.addEventListener('mouseenter', () => { 
+                timeNode.innerHTML = `
+                <div class="todo_time_year none">
+                        ${year}
+                </div>`
+            })
+            
+            timeNode.addEventListener('mouseleave', () => {
+                timeNode.innerHTML = `
+                <div class="todo_time_day">
+                    ${day}
+                </div>
+
+                <div class="todo_time_month">
+                    ${month}
+                </div>`
+            })
+    
+            showTodoList.appendChild(todo)
         })
     }
 

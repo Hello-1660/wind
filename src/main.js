@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require('electron')
 const path = require('path')
 const fs = require('fs')
+const fsp = require('fs').promises;
 
 
 
@@ -141,6 +142,9 @@ const createShowWindow = () => {
             preload: path.join(__dirname, 'preload.js')
         }
     })
+
+    // 打开开发者1
+    // showWindow.webContents.openDevTools()
 
 
     showWindow.setMenu(null)
@@ -419,6 +423,7 @@ ipcMain.on('update-todo', (event, data) => {
 })
 
 
+// 删除待办
 ipcMain.on('delete-todo', (event, data) => { 
     new TodoManager().deleteTodo(data)
 })
@@ -643,20 +648,20 @@ function getSetting() {
 
 
 class TodoManager {
-    constructor(storagePath = path.join(__dirname, 'todos.json')) {
+    constructor(storagePath = path.join(__dirname, '../todos.json')) {
         this.storagePath = storagePath
     }
 
 
     async loadTodos() {
         try {
-            const data = await fs.readFile(this.storagePath, 'utf8')
+            const data = await fsp.readFile(this.storagePath, 'utf8')
             return JSON.parse(data)
         } catch (error) {
             // 文件找不到创建默认结构
             return {
                 version: '2.0',
-                lastUpdate: Date.now().toString,
+                lastUpdate: Date.now().toString(),
                 todos: []
             }
         }
@@ -667,7 +672,7 @@ class TodoManager {
 
     async saveTodos(todoData) {
         todoData.lastUpdate = Date.now().toString()
-        await fs.writeFile(this.storagePath, JSON.stringify(todoData, null, 2))
+        await fsp.writeFile(this.storagePath, JSON.stringify(todoData, null, 2))
     }
 
 
