@@ -25,8 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const showStatus = document.querySelector('#show_status')
 
 
-    // 展示时间
-    let showYear = false
+
     // 提醒时间计数
     let remindTimeCount = 0
     // 截至时间计数
@@ -424,7 +423,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const timeNode = todo.querySelector('.todo_time')
 
             timeNode.addEventListener('click', () => {
-                if (showYear) {
+                if (timeNode.getAttribute('showYear') === 'true') {
+                    timeNode.setAttribute('showYear', 'false')
                     timeNode.innerHTML = `
                 <div class="todo_time_day">
                     ${day}
@@ -434,14 +434,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${month}
                 </div>`
 
-                    showYear = false
                 } else {
+                    timeNode.setAttribute('showYear', 'true')
                     timeNode.innerHTML = `
                 <div class="todo_time_year">
                         ${year}
                 </div>`
 
-                    showYear = true
                 }
             })
 
