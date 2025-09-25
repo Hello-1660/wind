@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const showStatus = document.querySelector('#show_status')
 
 
+    // 防抖
+    let timer = null
+
 
     // 提醒时间计数
     let remindTimeCount = 0
@@ -39,8 +42,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     showTodo()
 
 
-    addStatus.addEventListener('mouseenter', () => {
+    addStatus.addEventListener('mouseover', () => {
         status.classList.remove('none')
+    })
+
+    addStatus.addEventListener('mouseleave', (e) => {
+        timer = setTimeout(() => {
+            status.classList.add('none')
+        }, 100)
     })
 
 
@@ -50,6 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         })
 
         status.addEventListener('mouseover', (e) => {
+            clearTimeout(timer)
             status.classList.remove('none')
         })
     }
@@ -114,6 +124,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         remindBox.remove()
                         remindTimeCount--
                     })
+                }
+            })
+
+            // 添加回车确认事件
+            timeInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    confirmBtn.click()
                 }
             })
 
@@ -184,6 +201,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             })
 
+
+            // 添加回车确认事件
+            timeInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    confirmBtn.click()
+                }
+            })
+
             showStatus.appendChild(stopBox)
             deadlineTimeCount++
         })
@@ -200,6 +225,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const addressInput = document.createElement('input')
             addressInput.type = 'text'
             addressInput.className = 'address_input'
+            // 聚焦
+            setTimeout(() => {
+                addressInput.focus()
+            }, 0)
 
             // 确认按钮
             const confirmBtn = document.createElement('button')
@@ -228,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div id="delete_item">×</div>
                     <div id="status_item">地点 ${address}</div>
                 `
-
+ 
                 // 删除事件
                 const deleteItem = addressBox.querySelector('#delete_item')
                 if (deleteItem) {
@@ -236,6 +265,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         addressBox.remove()
                         addressCount--
                     })
+                }
+            })
+
+            // 添加回车确认事件
+            addressInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    confirmBtn.click()
                 }
             })
 
@@ -272,7 +308,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    document.addEventListener('dblclick', getTodo)
+    // 添加快捷键
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key == 's') {
+            getTodo()
+        }
+    })
 
 
 

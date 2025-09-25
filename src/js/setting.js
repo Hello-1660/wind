@@ -221,8 +221,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // 双击保存
-    document.addEventListener('contextmenu', () => {
-        window.electronAPI.createTip()
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key == 's') {
+            window.electronAPI.createTip()
+        }
     })
 
 
