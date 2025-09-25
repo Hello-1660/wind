@@ -144,7 +144,7 @@ const createShowWindow = () => {
     })
 
     // 打开开发者1
-    // showWindow.webContents.openDevTools()
+    showWindow.webContents.openDevTools()
 
 
     showWindow.setMenu(null)

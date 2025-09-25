@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 渲染配置
     const body = document.body
+    const showTodoElement = document.querySelector('#showTodo')
     const showTodoList = document.querySelector('#todoList')
     const input = document.querySelectorAll('input')
     const deleteItemList = document.querySelectorAll('#delete_item')
@@ -23,6 +24,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addIndex = document.querySelector('#add_index')
     const status = document.querySelector('#status')
     const showStatus = document.querySelector('#show_status')
+
+
+    const todoDetails = document.querySelector('#todo_details')
+    const todoDetailsThemeText = document.querySelector('#todo_details_theme_text')
+    const todoDetailsContent = document.querySelector('#todo_details_content')
+    const todoDetailsStatus = document.querySelector('#todo_details_status')
+
+
 
 
     // 防抖
@@ -257,7 +266,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div id="delete_item">×</div>
                     <div id="status_item">地点 ${address}</div>
                 `
- 
+
                 // 删除事件
                 const deleteItem = addressBox.querySelector('#delete_item')
                 if (deleteItem) {
@@ -317,9 +326,123 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    // 收集便签数据
+
+
+
+    // 回显单个待办数据
+    function echoTodo(todo) {
+        console.log(todo)
+
+
+        todoDetailsThemeText.innerText = todo.getAttribute('theme')
+        todoDetailsContent.innerText = todo.getAttribute('content')
+
+        while (todoDetailsStatus.firstChild) {
+            todoDetailsStatus.removeChild(todoDetailsStatus.firstChild)
+        }
+
+
+        if (todo.getAttribute('deadline')) {
+            const deadline = todo.getAttribute('deadline')
+            const deadlineTime = deadline.split(':')[0]
+            const deadlineTimeStr = deadlineTime.replace('T', ' ')
+            const deadlineTimeText = deadlineTimeStr.slice(0, 10) + ' ' + deadlineTimeStr.slice(11, 16)
+
+            const deadlineBox = document.createElement('div')
+            deadlineBox.className = 'show_status_item'
+            deadlineBox.innerHTML = `
+                <div id="delete_item">×</div>
+                <div id="status_item">截止时间 ${deadlineTimeText}</div>
+            `
+            todoDetailsStatus.appendChild(deadlineBox)
+
+            const deleteItem = deadlineBox.querySelector('#delete_item')
+            if (deleteItem) {
+                deleteItem.addEventListener('click', () => {
+                    deadlineBox.remove()
+                })
+            }
+        }
+
+        if (todo.getAttribute('remindTime')) {
+            const remind = todo.getAttribute('remindTime')
+            const remindTime = remind.split(':')[0]
+            const remindTimeStr = remindTime.replace('T', ' ')
+            const remindTimeText = remindTimeStr.slice(0, 10) + ' ' + remindTimeStr.slice(11, 16)
+
+            const remindBox = document.createElement('div')
+            remindBox.className = 'show_status_item'
+
+            remindBox.innerHTML = `
+                <div id="delete_item">×</div>
+                <div id="status_item">提醒时间 ${remindTimeText}</div>
+            `
+
+            todoDetailsStatus.appendChild(remindBox)
+
+            const deleteItem = remindBox.querySelector('#delete_item')
+            if (deleteItem) {
+                deleteItem.addEventListener('click', () => {
+                    remindBox.remove()
+                })
+            }
+
+        }
+
+        if (todo.getAttribute('priority')) {
+            const priority = todo.getAttribute('priority')
+
+            if (priority != 0) {
+                const addressBox = document.createElement('div')
+                addressBox.className = 'show_status_item'
+                addressBox.innerHTML = `
+                <div id="delete_item">×</div>
+                <div id="status_item">高优先级</div>
+            `
+
+                todoDetailsStatus.appendChild(addressBox)
+
+                const deleteItem = addressBox.querySelector('#delete_item')
+                if (deleteItem) {
+                    deleteItem.addEventListener('click', () => {
+                        addressBox.remove()
+                    })
+                }
+            }
+
+
+        }
+
+        if (todo.getAttribute('location')) {
+            const locations = todo.getAttribute('location').split(',')
+
+            locations.forEach(item => {
+                // 确保地点不为空
+                if (item.trim()) {
+                    const addressBox = document.createElement('div');
+                    addressBox.className = 'show_status_item';
+                    addressBox.innerHTML = `
+                        <div id="delete_item">×</div>
+                        <div id="status_item">地点 ${item.trim()}</div>
+                    `;
+                    todoDetailsStatus.appendChild(addressBox);
+
+                    const deleteItem = addressBox.querySelector('#delete_item');
+                    if (deleteItem) {
+                        deleteItem.addEventListener('click', () => {
+                            addressBox.remove();
+                        });
+                    }
+                }
+            })
+        }
+    }
+
+
+
+    // 新增待办事项
     function getTodo() {
-        if (!todoContent.value.trim()) return 
+        if (!todoContent.value.trim()) return
 
 
 
@@ -399,7 +522,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showStatus.removeChild(showStatus.firstChild)
         }
 
-        
+
         // 回显待办
         const showTimeout = setInterval(() => {
             showTodo()
@@ -484,6 +607,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 }
             })
+
+
+            const contentNode = todo.querySelector('.todo_content')
+
+            contentNode.addEventListener('click', () => {
+                showTodoElement.classList.add('none')
+                todoDetails.classList.remove('none')
+
+                echoTodo(todo)
+            })
+
 
             showTodoList.appendChild(todo)
         })
