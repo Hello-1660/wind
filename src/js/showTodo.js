@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addStop = document.querySelector('#add_stop')
     const addAddress = document.querySelector('#add_address')
     const addStatus = document.querySelector('#add_status')
+    const addIndex = document.querySelector('#add_index')
     const status = document.querySelector('#status')
     const showStatus = document.querySelector('#show_status')
 
@@ -32,6 +33,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let deadlineTimeCount = 0
     // 地点计数
     let addressCount = 0
+    // 优先级计数
+    let priorityCount = 0
 
     setConfig()
     showTodo()
@@ -242,14 +245,145 @@ document.addEventListener('DOMContentLoaded', async () => {
         })
     }
 
+    // 添加优先级
+    if (addIndex) {
+        addIndex.addEventListener('click', () => {
+            status.classList.add('none')
+
+            if (priorityCount >= 1) return
+
+            const priorityBox = document.createElement('div')
+            priorityBox.className = 'show_status_item'
+            priorityBox.innerHTML = `
+                <div id="delete_item">×</div>
+                <div id="status_item">高优先级</div>
+            `
+            // 删除事件
+            const deleteItem = priorityBox.querySelector('#delete_item')
+            if (deleteItem) {
+                deleteItem.addEventListener('click', () => {
+                    priorityBox.remove()
+                    priorityCount--
+                })
+            }
+
+            showStatus.appendChild(priorityBox)
+            priorityCount++
+        })
+    }
+
+
+    document.addEventListener('dblclick', getTodo)
+
+
+
+    // 收集便签数据
+    function getTodo() {
+        if (!todoContent.value.trim()) return 
+
+
+
+        const statusList = document.querySelectorAll('.show_status_item')
+
+
+        let addressList = ''
+        let addDeadline
+        let addRemindList
+        let addIndex
+
+        statusList.forEach(item => {
+            if (!item.querySelector('#status_item')) return
+
+            const content = item.querySelector('#status_item').innerText
+
+            if (content.slice(0, 2) == '截止') {
+                const dateTimeStr = content.slice(5, content.length)
+                const isoStr = dateTimeStr.replace(' ', 'T')
+                addDeadline = isoStr + ':0'
+            }
+
+            if (content.slice(0, 2) == '提醒') {
+                const dateTimeStr = content.slice(5, content.length)
+                const isoStr = dateTimeStr.replace(' ', 'T')
+                addRemindList = isoStr + ':0'
+            }
+
+            if (content.slice(0, 2) == '地点') {
+                addressList += content.slice(2, content.length) + ','
+            }
+
+            if (content.slice(0, 4) == '高优先级') {
+                addIndex = content.slice(0, content.length)
+            }
+        })
+
+
+
+        const todo = {
+            createdTime: new Date().toISOString(),
+            content: todoContent.value,
+            status: '待完成',
+            deadline: '',
+            remindTime: '',
+            priority: '0',
+            location: '',
+        }
+
+        if (todoTheme) todo.theme = todoTheme.value
+
+        if (addDeadline) {
+            const deadlineDate = new Date(addDeadline)
+            if (!isNaN(deadlineDate.getTime())) {
+                todo.deadline = deadlineDate.toISOString()
+            }
+        }
+
+        if (addRemindList) {
+            const remindDate = new Date(addRemindList)
+            if (!isNaN(remindDate.getTime())) {
+                todo.remindTime = remindDate.toISOString()
+            }
+        }
+
+        todo.priority = (addIndex && addIndex !== '') ? "1" : "0"
+
+        if (addressList) todo.location = addressList.slice(0, addressList.length - 1)
+
+        window.electronAPI.sendAddTodo(todo)
+        // 清除数据
+        todoTheme.value = ''
+        todoContent.value = ''
+
+        // 删除状态便签
+        while (showStatus.firstChild) {
+            showStatus.removeChild(showStatus.firstChild)
+        }
+
+        
+        // 回显待办
+        const showTimeout = setInterval(() => {
+            showTodo()
+            clearTimeout(showTimeout)
+        }, 800)
+    }
+
+
 
     // 便签数据回显
-    function showTodo() {
+    async function showTodo() {
+        // 清空待办
+        while (showTodoList.firstChild) {
+            showTodoList.removeChild(showTodoList.firstChild)
+        }
+
+
+        const todoList = await window.electronAPI.getTodoList()
+
         if (!todoList) return
 
         const list = todoList.todos
 
-        if (!list || list.length === 0) return
+        if (!list) return
 
         list.forEach(item => {
             const createTime = new Date(item.createdTime)
@@ -314,7 +448,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             showTodoList.appendChild(todo)
         })
     }
-
 
 
 
