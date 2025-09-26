@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const todoList = await window.electronAPI.getTodoList()
 
     // 渲染配置
+    // 新增界面
     const body = document.body
     const showTodoElement = document.querySelector('#showTodo')
     const showTodoList = document.querySelector('#todoList')
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const showStatus = document.querySelector('#show_status')
 
 
+    // 展示界面
     const todoDetails = document.querySelector('#todo_details')
     const todoDetailsThemeText = document.querySelector('#todo_details_theme_text')
     const todoDetailsContent = document.querySelector('#todo_details_content')
@@ -39,6 +41,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 当前打开窗口
     let isShowWindow = false
+    // 当前待办
+    let currentTodo = null
+    // 是否为修改
+    let isModify = false
 
 
     // 提醒时间计数
@@ -323,19 +329,158 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 添加保存快捷键
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key == 's') {
+            if (isShowWindow) return
+
             getTodo()
         }
     })
 
-    // 添新增快捷键
+
+
+    // 添加修改的快捷键
     document.addEventListener('keydown', async (e) => {
-        if (e.ctrlKey && e.key == 'n') {
+        if (e.ctrlKey && e.key == 'm') {
+            if (!isShowWindow) return
+
             showTodoElement.classList.remove('none')
             todoDetails.classList.add('none')
+
+            isShowWindow = false
+            isModify = true
+
+            updateTodo(currentTodo)
+        } else if (e.ctrlKey && e.key == 'n') {
+            currentTodo = null
+
+            remindTimeCount = 0
+            deadlineTimeCount = 0
+            addressCount = 0
+            priorityCount = 0
+
+            showTodoElement.classList.remove('none')
+            todoDetails.classList.add('none')
+
+            isShowWindow = false
         }
     })
 
 
+
+    // 修改待办数据回显
+    function updateTodo(todo) {
+        todoTheme.value = todo.getAttribute('theme')
+        todoContent.value = todo.getAttribute('content')
+
+        while (showStatus.firstChild) {
+            showStatus.removeChild(showStatus.firstChild)
+        }
+
+        while (todoDetailsStatus.firstChild) {
+            todoDetailsStatus.removeChild(todoDetailsStatus.firstChild)
+        }
+
+        if (todo.getAttribute('deadline')) {
+            deadlineTimeCount = 1
+
+            const deadline = todo.getAttribute('deadline')
+            const deadlineTime = deadline.split('T')[0]
+            const deadlineTimeStr = deadline.split('T')[1].split(':')[0] + ':' + deadline.split('T')[1].split(':')[1]
+            const deadlineTimeText = deadlineTime + ' ' + deadlineTimeStr
+
+            const deadlineBox = document.createElement('div')
+            deadlineBox.className = 'show_status_item'
+            deadlineBox.innerHTML = `
+                <div id="delete_item">×</div>
+                <div id="status_item">截止时间 ${deadlineTimeText}</div>
+            `
+            showStatus.appendChild(deadlineBox)
+
+            const deleteItem = deadlineBox.querySelector('#delete_item')
+            if (deleteItem) {
+                deleteItem.addEventListener('click', () => {
+                    deadlineBox.remove()
+                    deadlineTimeCount--
+                })
+            }
+        }
+
+        if (todo.getAttribute('remindTime')) {
+            remindTimeCount = 1
+
+            const remind = todo.getAttribute('remindTime')
+            const remindTime = remind.split('T')[0]
+            const remindTimeStr = remind.split('T')[1].split(':')[0] + ':' + remind.split('T')[1].split(':')[1]
+            const remindTimeText = remindTime + ' ' + remindTimeStr
+            const remindBox = document.createElement('div')
+            remindBox.className = 'show_status_item'
+
+            remindBox.innerHTML = `
+                <div id="delete_item">×</div>
+                <div id="status_item">提醒时间 ${remindTimeText}</div>
+            `
+
+            const deleteItem = remindBox.querySelector('#delete_item')
+            if (deleteItem) {
+                deleteItem.addEventListener('click', () => {
+                    remindBox.remove()
+                    remindTimeCount--
+                })
+            }
+
+            showStatus.appendChild(remindBox)
+        }
+
+        if (todo.getAttribute('priority')) {
+            priorityCount = 1
+
+            const priority = todo.getAttribute('priority')
+
+            if (priority != 0) {
+                const priorityBox = document.createElement('div')
+                priorityBox.className = 'show_status_item'
+                priorityBox.innerHTML = `
+                <div id="delete_item">×</div>
+                <div id="status_item">高优先级</div>
+            `
+
+                const deleteItem = priorityBox.querySelector('#delete_item')
+                if (deleteItem) {
+                    deleteItem.addEventListener('click', () => {
+                        priorityBox.remove()
+                        priorityCount--
+                    })
+                }
+                showStatus.appendChild(priorityBox)
+            }
+        }
+
+        if (todo.getAttribute('location')) {
+            const locations = todo.getAttribute('location').split(',')
+
+            locationsCount = locations.length
+
+            locations.forEach(item => {
+                // 确保地点不为空
+                if (item.trim()) {
+                    const addressBox = document.createElement('div');
+                    addressBox.className = 'show_status_item';
+                    addressBox.innerHTML = `
+                        <div id="delete_item">×</div>
+                        <div id="status_item">地点 ${item.trim()}</div>
+                    `;
+
+                    const deleteItem = addressBox.querySelector('#delete_item');
+                    if (deleteItem) {
+                        deleteItem.addEventListener('click', () => {
+                            addressBox.remove()
+                            locationsCount--
+                        })
+                    }
+                    showStatus.appendChild(addressBox);
+                }
+            })
+        }
+    }
 
 
 
@@ -409,11 +554,43 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             })
         }
+
+
+
+        const todoStatus = todo.querySelector('.todo_content_status').innerText
+
+        if (todoStatus === '已完成') {
+            todoDetailsThemeText.title = ''
+        } else {
+            todoDetailsThemeText.title = '点击完成事件'
+
+            todoDetailsThemeText.addEventListener('click', () => {
+
+                const todoModel = {
+                    theme: todo.getAttribute('theme'),
+                    content: todo.getAttribute('content'),
+                    status: '已完成',
+                    deadline: todo.getAttribute('deadline'),
+                    remindTime: todo.getAttribute('remindTime'),
+                    priority: todo.getAttribute('priority'),
+                    location: todo.getAttribute('location')
+                }
+
+                window.electronAPI.sendUpdateTodo(todo.getAttribute('id'), todoModel)
+
+
+                // 刷新待办
+                const showTimeout = setInterval(() => {
+                    showTodo()
+                    clearTimeout(showTimeout)
+                }, 800)
+            })
+        }
     }
 
 
 
-    // 新增待办事项
+    // 更改待办事项
     function getTodo() {
         if (!todoContent.value.trim()) return
 
@@ -479,7 +656,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (addressList) todo.location = addressList.slice(0, addressList.length - 1)
 
-        window.electronAPI.sendAddTodo(todo)
+
+        if (isModify) {
+            window.electronAPI.sendUpdateTodo(currentTodo.getAttribute('id'), todo)
+
+            isModify = false
+        } else {
+            window.electronAPI.sendAddTodo(todo)
+        }
+
         // 清除数据
         todoTheme.value = ''
         todoContent.value = ''
@@ -490,7 +675,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
 
-        // 回显待办
+        // 刷新待办
         const showTimeout = setInterval(() => {
             showTodo()
             clearTimeout(showTimeout)
@@ -583,6 +768,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 todoDetails.classList.remove('none')
 
                 isShowWindow = true
+                currentTodo = todo
 
                 echoTodo(todo)
             })

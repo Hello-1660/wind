@@ -144,7 +144,7 @@ const createShowWindow = () => {
     })
 
     // 打开开发者1
-    // showWindow.webContents.openDevTools()
+    showWindow.webContents.openDevTools()
 
 
     showWindow.setMenu(null)
@@ -417,8 +417,9 @@ ipcMain.on('add-todo', (event, data) => {
 
 
 // 修改待办
-ipcMain.on('update-todo', (event, data) => { 
-    new TodoManager().updateTodo(data)
+ipcMain.on('update-todo', (event, id, data) => { 
+    console.log('修改待办：', data)
+    new TodoManager().updateTodo(id, data)
 })
 
 

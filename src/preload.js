@@ -17,5 +17,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getTodoList: () => ipcRenderer.invoke('get-todo-list'),
     sendAddTodo: (data) => ipcRenderer.send('add-todo', data),
     sendDeleteTodo: (data) => ipcRenderer.send('delete-todo', data),
-    sendUpdateTodo: (data) => ipcRenderer.send('update-todo', data)
+    sendUpdateTodo: (id, data) => ipcRenderer.send('update-todo', id, data)
 })
