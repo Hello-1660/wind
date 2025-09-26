@@ -143,10 +143,6 @@ const createShowWindow = () => {
         }
     })
 
-    // 打开开发者1
-    showWindow.webContents.openDevTools()
-
-
     showWindow.setMenu(null)
     showWindow.on('closed', () => showWindow = null)
     showWindow.loadFile(path.join(__dirname, './html/showTodo.html'))
@@ -289,14 +285,65 @@ ipcMain.handle('getSettingFile', () => {
 })
 
 
+// 创建设置界面
 ipcMain.handle('create-setting-window', () => {
     createSettingWindow()
 })
 
+// 获取设置数据模型
 ipcMain.handle('get-setting-model', () => {
     return getSetting()
 })
 
+// 获取原始设置数据模型
+ipcMain.handle('get-setting-model-origin', () => {
+    return {
+        ui: {
+            // 界面配置
+            // 通用
+            bgc: '#ffffff',                  // 背景色
+            font: 'Microsoft YaHei',        // 字体
+            fontSize: 12,                   // 字体大小
+            fontColor: '#000000',            // 字体颜色 
+
+            // 按钮
+            btnBorderColor: '#000000',       // 按钮边框颜色
+            btnBgColor: '#ffffff',           // 按钮背景颜色
+            btnFontColor: '#000000',         // 按钮字体颜色
+            btnFontSize: 12,                // 按钮字体大小
+
+            // 文本框
+            textBorderColor: '#000000',      // 文本框边框颜色
+            textBgColor: '#ffffff',          // 文本框背景颜色
+            textFontColor: '#000000',        // 文本框字体颜色
+            textFontSize: 12,               // 文本框字体大小
+
+            // 时间
+            timeFontColor: '#000000',        // 时间字体颜色
+            timeFontSize: 12,               // 时间字体大小
+
+            // 日期
+            dateFontColor: '#000000',        // 日期字体颜色
+            dateFontSize: 12,               // 日期字体大小
+            dateFormat: 'yyyy-MM-dd',       // 日期格式
+            dateContent: '',                // 日期内容自定义
+
+            // 提示
+            tipStyle: 'default'             // 提示样式
+        },
+        Interaction: {
+            // 交互
+            addTodo: ['Ctrl', 'n'],            // 添加任务
+            showTodo: ['Ctrl', 'd'],           // 展示任务
+            updateTodo: ['Ctrl', 'm'],         // 更新任务
+
+            // 事件到期时间提醒
+            isRemind: true,                 // 是否提醒 
+            // 开机自启
+            isAutoStart: true               // 是否开机自启
+        }
+    }
+})
 
 // 创建弹窗
 ipcMain.handle('create-tip', async (event) => {
@@ -375,11 +422,11 @@ ipcMain.handle('get-setting-data', (event, data) => {
             'fontSize': data.ui.fontSize,
             'fontColor': data.ui.fontColor,
             'btnBorderColor': data.ui.btnBorderColor,
-            'btnBgColor': data.ui.btnColor,
+            'btnBgColor': data.ui.btnBgColor,
             'btnFontColor': data.ui.btnFontColor,
             'btnFontSize': data.ui.btnFontSize,
             'textBorderColor': data.ui.textBorderColor,
-            'textBgColor': data.ui.textColor,
+            'textBgColor': data.ui.textBgColor,
             'textFontColor': data.ui.textFontColor,
             'textFontSize': data.ui.textFontSize,
             'timeFontColor': data.ui.timeFontColor,
@@ -411,19 +458,19 @@ ipcMain.handle('get-todo-list', () => {
 
 
 // 添加待办
-ipcMain.on('add-todo', (event, data) => { 
+ipcMain.on('add-todo', (event, data) => {
     new TodoManager().addTodo(data)
 })
 
 
 // 修改待办
-ipcMain.on('update-todo', (event, id, data) => { 
+ipcMain.on('update-todo', (event, id, data) => {
     new TodoManager().updateTodo(id, data)
 })
 
 
 // 删除待办
-ipcMain.on('delete-todo', (event, id) => { 
+ipcMain.on('delete-todo', (event, id) => {
     new TodoManager().deleteTodo(id)
 })
 
@@ -515,29 +562,29 @@ function getSetting() {
         ui: {
             // 界面配置
             // 通用
-            bgc: '#fff',                  // 背景色
+            bgc: '#ffffff',                  // 背景色
             font: 'Microsoft YaHei',        // 字体
             fontSize: 12,                   // 字体大小
-            fontColor: '#000',            // 字体颜色 
+            fontColor: '#000000',            // 字体颜色 
 
             // 按钮
-            btnBorderColor: '#000',       // 按钮边框颜色
-            btnBgColor: '#fff',           // 按钮背景颜色
-            btnFontColor: '#000',         // 按钮字体颜色
+            btnBorderColor: '#000000',       // 按钮边框颜色
+            btnBgColor: '#ffffff',           // 按钮背景颜色
+            btnFontColor: '#000000',         // 按钮字体颜色
             btnFontSize: 12,                // 按钮字体大小
 
             // 文本框
-            textBorderColor: '#000',      // 文本框边框颜色
-            textBgColor: '#fff',          // 文本框背景颜色
-            textFontColor: '#000',        // 文本框字体颜色
+            textBorderColor: '#000000',      // 文本框边框颜色
+            textBgColor: '#ffffff',          // 文本框背景颜色
+            textFontColor: '#000000',        // 文本框字体颜色
             textFontSize: 12,               // 文本框字体大小
 
             // 时间
-            timeFontColor: '#000',        // 时间字体颜色
+            timeFontColor: '#000000',        // 时间字体颜色
             timeFontSize: 12,               // 时间字体大小
 
             // 日期
-            dateFontColor: '#000',        // 日期字体颜色
+            dateFontColor: '#000000',        // 日期字体颜色
             dateFontSize: 12,               // 日期字体大小
             dateFormat: 'yyyy-MM-dd',       // 日期格式
             dateContent: '',                // 日期内容自定义
@@ -547,9 +594,9 @@ function getSetting() {
         },
         Interaction: {
             // 交互
-            addTodo: ['w', 'a'],            // 添加任务
-            showTodo: ['w', 's'],           // 展示任务
-            updateTodo: ['w', 'u'],         // 更新任务
+            addTodo: ['Ctrl', 'n'],            // 添加任务
+            showTodo: ['Ctrl', 'd'],           // 展示任务
+            updateTodo: ['Ctrl', 'm'],         // 更新任务
 
             // 事件到期时间提醒
             isRemind: true,                 // 是否提醒 

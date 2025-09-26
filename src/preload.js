@@ -4,6 +4,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI', {
     getSettingFile: () => ipcRenderer.invoke('getSettingFile'),
     getSettingModel: () => ipcRenderer.invoke('get-setting-model'),
+    getSettingModelOrigin: () => ipcRenderer.invoke('get-setting-model-origin'),
     createSettingWindow: () => ipcRenderer.invoke('create-setting-window'),
     createShowWindow: () => ipcRenderer.invoke('create-show-window'),
     createTip: (event) => ipcRenderer.invoke('create-tip'),

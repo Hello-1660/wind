@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // 获取数据模型
     const config = await window.electronAPI.getSettingModel()
-
+    // 获取原始数据模型
+    const originConfig = await window.electronAPI.getSettingModelOrigin()
 
     //  渲染配置
     const body = document.body
@@ -219,11 +220,111 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+    // 渲染原始配置
+    function setOriginConfig () {
+        if (!originConfig) return
 
-    // 双击保存
+        // 通用设置
+        body.style.fontSize = originConfig.ui.fontSize + 'px'
+        body.style.fontFamily = originConfig.ui.font
+        body.style.color = originConfig.ui.fontColor
+        body.style.backgroundColor = originConfig.ui.bgc
+
+
+        input.forEach(item => {
+            // 按钮属性
+            if (item.type === 'button') {
+                item.style.backgroundColor = originConfig.ui.btnBgColor
+                item.style.borderColor = originConfig.ui.btnBorderColor
+                item.style.color = originConfig.ui.btnFontColor
+                item.style.fontSize = originConfig.ui.btnFontSize + 'px'
+            }
+
+            // 文本框属性
+            if (item.type === 'text') {
+                item.style.backgroundColor = originConfig.ui.textBgColor
+                item.style.borderColor = originConfig.ui.textBorderColor
+                item.style.color = originConfig.ui.textFontColor
+                item.style.fontSize = originConfig.ui.textFontSize + 'px'
+                item.style.height = +originConfig.ui.textFontSize + 5 + 'px'
+            }
+        })
+
+        // a 标签
+        a.forEach(item => {
+            item.style.color = originConfig.ui.fontColor
+        })
+
+        // 下拉框
+        const liHeight = document.querySelectorAll('li')[0].offsetHeight
+
+        fontFamily.style.width = +originConfig.ui.fontSize * 5 + 40 + 'px'
+        fontFamily.style.left = +originConfig.ui.fontSize * 4 + 'px'
+        fontFamilyHead.style.height = liHeight + 'px'
+        tipStyle.style.width = +originConfig.ui.fontSize * 2 + 40 + 'px'
+        tipStyle.style.left = +originConfig.ui.fontSize * 5 + 'px'
+        tipStyleHead.style.height = liHeight + 'px'
+
+
+
+        // 配置文件数回显
+        fontSize.value = originConfig.ui.fontSize
+        fontFamilyHead.innerText = fonts[originConfig.ui.font]
+        fontColor.value = originConfig.ui.fontColor
+        bgc.value = originConfig.ui.bgc
+        buttonColor.value = originConfig.ui.btnBgColor
+        buttonBorderColor.value = originConfig.ui.btnBorderColor
+        buttonFontColor.value = originConfig.ui.btnFontColor
+        buttonFontSize.value = originConfig.ui.btnFontSize
+        textColor.value = originConfig.ui.textFontColor
+        textBorderColor.value = originConfig.ui.textBorderColor
+        textFontColor.value = originConfig.ui.textFontColor
+        textFontSize.value = originConfig.ui.textFontSize
+        timeFontColor.value = originConfig.ui.timeFontColor
+        timeFontSize.value = originConfig.ui.timeFontSize
+        dateFontColor.value = originConfig.ui.dateFontColor
+        dateFontSize.value = originConfig.ui.dateFontSize
+        dateFormat.value = originConfig.ui.dateFormat
+        dateContent.value = originConfig.ui.dateContent
+        tipStyleHead.innerText = tips[originConfig.ui.tipStyle]
+        addTodo.value = originConfig.Interaction.addTodo[0] + '+' + originConfig.Interaction.addTodo[1]
+        showTodo.value = originConfig.Interaction.showTodo[0] + '+' + originConfig.Interaction.showTodo[1]
+        updateTodo.value = originConfig.Interaction.updateTodo[0] + '+' + originConfig.Interaction.updateTodo[1]
+
+        if (originConfig.Interaction.isRemind == true) {
+            enable.checked = true
+            desable.checked = false
+            isEnable = true
+        } else {
+            desable.checked = true
+            enable.checked = false
+            isEnable = false
+        }
+
+        if (originConfig.Interaction.isAutoStart == true) {
+            entip.checked = true
+            destip.checked = false
+            isEntip = true
+        } else {
+            destip.checked = true
+            entip.checked = false
+            isEntip = false
+        }
+    }
+
+
+    // 保存
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key == 's') {
             window.electronAPI.createTip()
+        }
+    })
+
+
+    // 重置
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key == 'r') {
+            setOriginConfig()
         }
     })
 
@@ -304,9 +405,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    document.addEventListener('dblclick', async (e) => {
-        window.electronAPI.closeSetting()
-    })
+    // document.addEventListener('dblclick', async (e) => {
+    //     window.electronAPI.closeSetting()
+    // })
 
 
 
