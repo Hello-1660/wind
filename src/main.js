@@ -144,7 +144,7 @@ const createShowWindow = () => {
     })
 
     // 打开开发者1
-    showWindow.webContents.openDevTools()
+    // showWindow.webContents.openDevTools()
 
 
     showWindow.setMenu(null)
@@ -412,7 +412,6 @@ ipcMain.handle('get-todo-list', () => {
 
 // 添加待办
 ipcMain.on('add-todo', (event, data) => { 
-    console.log(data)
     new TodoManager().addTodo(data)
 })
 

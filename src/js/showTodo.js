@@ -37,6 +37,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 防抖
     let timer = null
 
+    // 当前打开窗口
+    let isShowWindow = false
+
 
     // 提醒时间计数
     let remindTimeCount = 0
@@ -317,10 +320,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // 添加快捷键
+    // 添加保存快捷键
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key == 's') {
             getTodo()
+        }
+    })
+
+    // 添新增快捷键
+    document.addEventListener('keydown', async (e) => {
+        if (e.ctrlKey && e.key == 'n') {
+            showTodoElement.classList.remove('none')
+            todoDetails.classList.add('none')
         }
     })
 
@@ -328,12 +339,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-
     // 回显单个待办数据
     function echoTodo(todo) {
-        console.log(todo)
-
-
         todoDetailsThemeText.innerText = todo.getAttribute('theme')
         todoDetailsContent.innerText = todo.getAttribute('content')
 
@@ -344,49 +351,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (todo.getAttribute('deadline')) {
             const deadline = todo.getAttribute('deadline')
-            const deadlineTime = deadline.split(':')[0]
-            const deadlineTimeStr = deadlineTime.replace('T', ' ')
-            const deadlineTimeText = deadlineTimeStr.slice(0, 10) + ' ' + deadlineTimeStr.slice(11, 16)
+            const deadlineTime = deadline.split('T')[0]
+            const deadlineTimeStr = deadline.split('T')[1].split(':')[0] + ':' + deadline.split('T')[1].split(':')[1]
+            const deadlineTimeText = deadlineTime + ' ' + deadlineTimeStr
 
             const deadlineBox = document.createElement('div')
             deadlineBox.className = 'show_status_item'
             deadlineBox.innerHTML = `
-                <div id="delete_item">×</div>
                 <div id="status_item">截止时间 ${deadlineTimeText}</div>
             `
             todoDetailsStatus.appendChild(deadlineBox)
-
-            const deleteItem = deadlineBox.querySelector('#delete_item')
-            if (deleteItem) {
-                deleteItem.addEventListener('click', () => {
-                    deadlineBox.remove()
-                })
-            }
         }
 
         if (todo.getAttribute('remindTime')) {
             const remind = todo.getAttribute('remindTime')
-            const remindTime = remind.split(':')[0]
-            const remindTimeStr = remindTime.replace('T', ' ')
-            const remindTimeText = remindTimeStr.slice(0, 10) + ' ' + remindTimeStr.slice(11, 16)
-
+            const remindTime = remind.split('T')[0]
+            const remindTimeStr = remind.split('T')[1].split(':')[0] + ':' + remind.split('T')[1].split(':')[1]
+            const remindTimeText = remindTime + ' ' + remindTimeStr
             const remindBox = document.createElement('div')
             remindBox.className = 'show_status_item'
 
             remindBox.innerHTML = `
-                <div id="delete_item">×</div>
                 <div id="status_item">提醒时间 ${remindTimeText}</div>
             `
 
             todoDetailsStatus.appendChild(remindBox)
-
-            const deleteItem = remindBox.querySelector('#delete_item')
-            if (deleteItem) {
-                deleteItem.addEventListener('click', () => {
-                    remindBox.remove()
-                })
-            }
-
         }
 
         if (todo.getAttribute('priority')) {
@@ -396,18 +385,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const addressBox = document.createElement('div')
                 addressBox.className = 'show_status_item'
                 addressBox.innerHTML = `
-                <div id="delete_item">×</div>
                 <div id="status_item">高优先级</div>
             `
 
                 todoDetailsStatus.appendChild(addressBox)
-
-                const deleteItem = addressBox.querySelector('#delete_item')
-                if (deleteItem) {
-                    deleteItem.addEventListener('click', () => {
-                        addressBox.remove()
-                    })
-                }
             }
 
 
@@ -422,17 +403,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const addressBox = document.createElement('div');
                     addressBox.className = 'show_status_item';
                     addressBox.innerHTML = `
-                        <div id="delete_item">×</div>
                         <div id="status_item">地点 ${item.trim()}</div>
                     `;
                     todoDetailsStatus.appendChild(addressBox);
-
-                    const deleteItem = addressBox.querySelector('#delete_item');
-                    if (deleteItem) {
-                        deleteItem.addEventListener('click', () => {
-                            addressBox.remove();
-                        });
-                    }
                 }
             })
         }
@@ -462,13 +435,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (content.slice(0, 2) == '截止') {
                 const dateTimeStr = content.slice(5, content.length)
                 const isoStr = dateTimeStr.replace(' ', 'T')
-                addDeadline = isoStr + ':0'
+                addDeadline = isoStr + ':00'
             }
 
             if (content.slice(0, 2) == '提醒') {
                 const dateTimeStr = content.slice(5, content.length)
                 const isoStr = dateTimeStr.replace(' ', 'T')
-                addRemindList = isoStr + ':0'
+                addRemindList = isoStr + ':00'
             }
 
             if (content.slice(0, 2) == '地点') {
@@ -495,17 +468,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (todoTheme) todo.theme = todoTheme.value
 
         if (addDeadline) {
-            const deadlineDate = new Date(addDeadline)
-            if (!isNaN(deadlineDate.getTime())) {
-                todo.deadline = deadlineDate.toISOString()
-            }
+            todo.deadline = addDeadline + ':00Z'
         }
 
         if (addRemindList) {
-            const remindDate = new Date(addRemindList)
-            if (!isNaN(remindDate.getTime())) {
-                todo.remindTime = remindDate.toISOString()
-            }
+            todo.remindTime = addRemindList + ':00Z'
         }
 
         todo.priority = (addIndex && addIndex !== '') ? "1" : "0"
@@ -614,6 +581,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             contentNode.addEventListener('click', () => {
                 showTodoElement.classList.add('none')
                 todoDetails.classList.remove('none')
+
+                isShowWindow = true
 
                 echoTodo(todo)
             })
