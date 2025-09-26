@@ -356,12 +356,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
+
     // 添加保存快捷键
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key == 's') {
             if (isShowWindow) return
 
             getTodo()
+        }
+    })
+
+
+
+    // 添加删除的快捷键
+    document.addEventListener('keydown', (e) => {
+        
+        if (e.ctrlKey && e.key == 'd') {
+            console.log('ctrl + d')
+            if (!isShowWindow) return
+
+            if (!currentTodo) return
+
+            window.electronAPI.sendDeleteTodo(currentTodo.getAttribute('id'))
+
+
+            // 清除残留数据
+            currentTodo = null
+
+
+            while (showStatus.firstChild) {
+                showStatus.removeChild(showStatus.firstChild)
+            }
+
+            while (todoDetailsStatus.firstChild) {
+                todoDetailsStatus.removeChild(todoDetailsStatus.firstChild)
+            }
+
+            remindTimeCount = 0
+            deadlineTimeCount = 0
+            addressCount = 0
+            priorityCount = 0
+
+            showTodoElement.classList.remove('none')
+            todoDetails.classList.add('none')
+
+            isShowWindow = false
+
+
+            setTimeout(() => {
+                showTodo()
+            }, 800)
         }
     })
 
@@ -403,6 +447,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             isShowWindow = false
         }
     })
+
+
 
 
 
