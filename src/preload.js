@@ -18,5 +18,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getTodoList: () => ipcRenderer.invoke('get-todo-list'),
     sendAddTodo: (data) => ipcRenderer.send('add-todo', data),
     sendDeleteTodo: (id) => ipcRenderer.send('delete-todo', id),
-    sendUpdateTodo: (id, data) => ipcRenderer.send('update-todo', id, data)
+    sendUpdateTodo: (id, data) => ipcRenderer.send('update-todo', id, data),
+    sendTestNotification: () => ipcRenderer.invoke('send-test-notification'),
+    reloadReminders: () => ipcRenderer.invoke('reload-reminders'),
+    updateReminderSetting: (isEnabled) => ipcRenderer.invoke('update-reminder-setting', isEnabled),
+    getReminderStatus: () => ipcRenderer.invoke('get-reminder-status')
 })

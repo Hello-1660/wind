@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require('electron')
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, Notification } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const fsp = require('fs').promises;
@@ -262,14 +262,17 @@ const createTip = (parentWindow) => {
 
 
 
-
-
-
-
-
 app.on('ready', () => {
     createMainWindow()
     createTray()
+
+    // 设置应用ID（Windows通知必要）
+    app.setAppUserModelId('wind');
+
+    // 延迟加载提醒，确保窗口已创建
+    setTimeout(() => {
+        notificationManager.loadAllReminders()
+    }, 2000)
 })
 
 
@@ -277,6 +280,11 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })
 
+
+// 应用退出前清理
+app.on('before-quit', () => {
+    notificationManager.clearAllReminders();
+});
 
 
 // 获取配置文件信息
@@ -473,6 +481,30 @@ ipcMain.on('update-todo', (event, id, data) => {
 ipcMain.on('delete-todo', (event, id) => {
     new TodoManager().deleteTodo(id)
 })
+
+// 发送测试通知
+ipcMain.handle('send-test-notification', () => {
+    notificationManager.sendNotification('测试通知', '便签应用通知功能正常！');
+});
+
+// 重新加载所有提醒
+ipcMain.handle('reload-reminders', () => {
+    notificationManager.loadAllReminders();
+});
+
+// 更新提醒设置
+ipcMain.handle('update-reminder-setting', (event, isEnabled) => {
+    notificationManager.updateReminderSetting(isEnabled);
+});
+
+// 获取提醒状态
+ipcMain.handle('get-reminder-status', () => {
+    return notificationManager.isRemindEnabled;
+});
+
+
+
+
 
 
 
@@ -728,6 +760,12 @@ class TodoManager {
         todo.id = Date.now().toString()
         data.todos.push(todo)
         await this.saveTodos(data)
+
+        // 添加成功后设置提醒
+        if (todo.remindTime) {
+            notificationManager.setTodoReminder(todo);
+        }
+
         return todo.id
     }
 
@@ -743,6 +781,23 @@ class TodoManager {
             }
 
             await this.saveTodos(data)
+
+
+            // 更新提醒设置
+            const updatedTodo = data.todos[index];
+
+            // 如果状态变为已完成，取消提醒
+            if (updates.status === '已完成') {
+                notificationManager.cancelTodoReminder(id);
+            }
+            // 如果提醒时间改变，更新提醒
+            else if (updates.remindTime && updates.remindTime !== oldTodo.remindTime) {
+                notificationManager.setTodoReminder(updatedTodo);
+            }
+            // 如果删除了提醒时间，取消提醒
+            else if (updates.remindTime === '' && oldTodo.remindTime) {
+                notificationManager.cancelTodoReminder(id);
+            }
         }
     }
 
@@ -750,5 +805,216 @@ class TodoManager {
         const data = await this.loadTodos()
         data.todos = data.todos.filter(todo => todo.id !== id)
         await this.saveTodos(data)
+
+
+        // 删除待办时取消提醒
+        notificationManager.cancelTodoReminder(id);
     }
 }
+
+
+class NotificationManager {
+    constructor() {
+        this.reminderTimers = new Map();
+        this.isRemindEnabled = true;
+        this.loadReminderSetting();
+    }
+
+    // 加载提醒设置
+    loadReminderSetting() {
+        try {
+            const setting = readSettingFile();
+            this.isRemindEnabled = setting.isRemind !== 'false';
+        } catch (error) {
+            console.error('加载提醒设置失败:', error);
+            this.isRemindEnabled = true;
+        }
+    }
+
+    // 修正时间解析方法
+    validateAndFormatTime(remindTime) {
+        if (!remindTime) return null;
+        
+        try {
+            let date;
+            
+            // 处理不同的时间格式
+            if (remindTime.includes('T')) {
+                // ISO 格式: 2024-01-20T09:00:00Z 或 2025-09-26T22:33:00Z
+                if (remindTime.endsWith('Z')) {
+                    // UTC 时间，转换为本地时间
+                    date = new Date(remindTime);
+                } else {
+                    // 没有时区信息，假设为本地时间
+                    date = new Date(remindTime);
+                }
+            } else {
+                // 简单日期时间格式，添加时区信息
+                date = new Date(remindTime + 'Z');
+            }
+            
+            // 检查日期是否有效
+            if (isNaN(date.getTime())) {
+                console.error('无效的日期格式:', remindTime);
+                return null;
+            }
+            
+            return date;
+        } catch (error) {
+            console.error('时间格式解析错误:', error);
+            return null;
+        }
+    }
+
+    // 发送通知
+    sendNotification(title, body, todoId = null) {
+        if (!this.isRemindEnabled) return null;
+
+        try {
+            const notification = new Notification({
+                title: title || '便签提醒',
+                body: body,
+                icon: path.join(__dirname, './icons/wind.png'),
+                silent: false,
+                timeoutType: 'default'
+            });
+
+            notification.on('click', () => {
+                console.log('通知被点击, todoId:', todoId);
+                if (showWindow) {
+                    showWindow.focus();
+                    if (todoId) {
+                        showWindow.webContents.send('focus-todo', todoId);
+                    }
+                }
+            });
+
+            notification.show();
+            return notification;
+        } catch (error) {
+            console.error('发送通知失败:', error);
+            return null;
+        }
+    }
+
+    // 设置提醒 - 修正时区问题
+    setTodoReminder(todo) {
+        if (!todo.remindTime || !this.isRemindEnabled || todo.status === '已完成') {
+            return;
+        }
+
+        const remindDate = this.validateAndFormatTime(todo.remindTime);
+        if (!remindDate) return
+    
+
+        const remindTime = remindDate.getTime() - 28800000
+        const now = Date.now();
+        const delay = remindTime - now;
+
+        // 处理已过期的提醒
+        if (delay <= 0) {
+            
+            // 可选：立即发送过期提醒
+            if (delay > -24 * 60 * 60 * 1000) { // 24小时内过期的才提醒
+                this.sendNotification(
+                    `待办已过期: ${todo.theme || '未命名待办'}`,
+                    `该待办应在 ${remindDate.toLocaleString('zh-CN')} 提醒\n内容: ${todo.content || '无内容'}`,
+                    todo.id
+                );
+            }
+            return;
+        }
+
+        // 清除已有的定时器
+        if (this.reminderTimers.has(todo.id)) {
+            clearTimeout(this.reminderTimers.get(todo.id));
+        }
+
+        // 设置新的定时器
+        const timer = setTimeout(() => {
+            this.sendNotification(
+                `待办提醒: ${todo.theme || '未命名待办'}`,
+                `内容: ${todo.content || '无内容'}\n截止时间: ${todo.deadline ? new Date(todo.deadline).toLocaleString('zh-CN') : '无'}`,
+                todo.id
+            );
+            this.reminderTimers.delete(todo.id);
+            console.log('✅ 提醒已触发:', todo.theme);
+        }, delay);
+
+        this.reminderTimers.set(todo.id, timer);
+        console.log(`✅ 设置提醒成功: ${todo.theme}, 将在 ${remindDate.toLocaleString('zh-CN')} 提醒`);
+    }
+
+    cancelTodoReminder(todoId) {
+        if (this.reminderTimers.has(todoId)) {
+            clearTimeout(this.reminderTimers.get(todoId));
+            this.reminderTimers.delete(todoId);
+            console.log('取消提醒成功:', todoId);
+        }
+    }
+
+    async loadAllReminders() {
+        try {
+            const todoManager = new TodoManager();
+            const data = await todoManager.loadTodos();
+            
+            this.clearAllReminders();
+            
+            console.log(`开始加载 ${data.todos.length} 个待办的提醒设置`);
+            
+            let validCount = 0;
+            let expiredCount = 0;
+            
+            data.todos.forEach(todo => {
+                if (todo.remindTime && todo.status !== '已完成') {
+                    this.setTodoReminder(todo);
+                    validCount++;
+                }
+            });
+            
+            console.log(`提醒加载完成: ${validCount} 个有效提醒, ${expiredCount} 个已过期`);
+        } catch (error) {
+            console.error('加载提醒失败:', error);
+        }
+    }
+
+    clearAllReminders() {
+        this.reminderTimers.forEach((timer, todoId) => {
+            clearTimeout(timer);
+        });
+        this.reminderTimers.clear();
+        console.log('已清除所有提醒');
+    }
+
+    updateReminderSetting(isEnabled) {
+        this.isRemindEnabled = isEnabled;
+        if (!isEnabled) {
+            this.clearAllReminders();
+            console.log('提醒功能已禁用');
+        } else {
+            this.loadAllReminders();
+            console.log('提醒功能已启用');
+        }
+    }
+
+    // 添加测试方法
+    testReminder() {
+        const testTodo = {
+            id: 'test-' + Date.now(),
+            theme: '测试提醒',
+            content: '这是一个测试提醒，将在10秒后触发',
+            remindTime: new Date(Date.now() + 10000).toISOString(), // 10秒后
+            deadline: new Date(Date.now() + 30000).toISOString(),
+            status: '待完成'
+        };
+        
+        console.log('开始测试提醒功能...');
+        this.setTodoReminder(testTodo);
+        
+        return testTodo.id;
+    }
+}
+
+// 创建全局通知管理器实例
+const notificationManager = new NotificationManager()
+

@@ -686,13 +686,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (content.slice(0, 2) == '截止') {
                 const dateTimeStr = content.slice(5, content.length)
                 const isoStr = dateTimeStr.replace(' ', 'T')
-                addDeadline = isoStr + ':00'
+                addDeadline = isoStr
             }
 
             if (content.slice(0, 2) == '提醒') {
                 const dateTimeStr = content.slice(5, content.length)
                 const isoStr = dateTimeStr.replace(' ', 'T')
-                addRemindList = isoStr + ':00'
+                addRemindList = isoStr
             }
 
             if (content.slice(0, 2) == '地点') {

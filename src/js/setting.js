@@ -405,12 +405,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    // document.addEventListener('dblclick', async (e) => {
-    //     window.electronAPI.closeSetting()
-    // })
-
-
-
     window.addEventListener('beforeunload', () => {
         // 移除之前添加的监听器
         window.electronAPI.removeTipDataResponseListener(handleTipResponse);
