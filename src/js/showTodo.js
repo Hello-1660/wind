@@ -326,6 +326,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+    // 完成待办
+    todoDetailsThemeText.addEventListener('click', (e) => {
+        if (!currentTodo) return
+
+        const todoStatus = currentTodo.querySelector('.todo_content_status').innerText
+        if (todoStatus === '已完成') return
+
+        const todoModel = {
+            theme: currentTodo.getAttribute('theme'),
+            content: currentTodo.getAttribute('content'),
+            status: '已完成',
+            deadline: currentTodo.getAttribute('deadline'),
+            remindTime: currentTodo.getAttribute('remindTime'),
+            priority: currentTodo.getAttribute('priority'),
+            location: currentTodo.getAttribute('location')
+        }
+
+        window.electronAPI.sendUpdateTodo(currentTodo.getAttribute('id'), todoModel);
+
+        setTimeout(() => {
+            showTodo()
+        }, 800)
+    })
+
+
+
+
+
+
+
     // 添加保存快捷键
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key == 's') {
@@ -350,7 +380,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             updateTodo(currentTodo)
         } else if (e.ctrlKey && e.key == 'n') {
+            // 清除残留数据
             currentTodo = null
+
+
+            while (showStatus.firstChild) {
+                showStatus.removeChild(showStatus.firstChild)
+            }
+
+            while (todoDetailsStatus.firstChild) {
+                todoDetailsStatus.removeChild(todoDetailsStatus.firstChild)
+            }
 
             remindTimeCount = 0
             deadlineTimeCount = 0
@@ -484,15 +524,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
+
+    // 删除待办
+    function deleteTodo(todo) {
+        todo.remove()
+    }
+
+
+
     // 回显单个待办数据
     function echoTodo(todo) {
         todoDetailsThemeText.innerText = todo.getAttribute('theme')
         todoDetailsContent.innerText = todo.getAttribute('content')
 
-        while (todoDetailsStatus.firstChild) {
-            todoDetailsStatus.removeChild(todoDetailsStatus.firstChild)
-        }
 
+        // 清空状态容器
+        while (todoDetailsStatus.firstChild) {
+            todoDetailsStatus.removeChild(todoDetailsStatus.firstChild);
+        }
 
         if (todo.getAttribute('deadline')) {
             const deadline = todo.getAttribute('deadline')
@@ -558,33 +607,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
         const todoStatus = todo.querySelector('.todo_content_status').innerText
-
         if (todoStatus === '已完成') {
             todoDetailsThemeText.title = ''
+            todoDetailsThemeText.style.cursor = 'default'
         } else {
             todoDetailsThemeText.title = '点击完成事件'
-
-            todoDetailsThemeText.addEventListener('click', () => {
-
-                const todoModel = {
-                    theme: todo.getAttribute('theme'),
-                    content: todo.getAttribute('content'),
-                    status: '已完成',
-                    deadline: todo.getAttribute('deadline'),
-                    remindTime: todo.getAttribute('remindTime'),
-                    priority: todo.getAttribute('priority'),
-                    location: todo.getAttribute('location')
-                }
-
-                window.electronAPI.sendUpdateTodo(todo.getAttribute('id'), todoModel)
-
-
-                // 刷新待办
-                const showTimeout = setInterval(() => {
-                    showTodo()
-                    clearTimeout(showTimeout)
-                }, 800)
-            })
+            todoDetailsThemeText.style.cursor = 'pointer'
         }
     }
 
@@ -633,7 +661,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
         const todo = {
-            createdTime: new Date().toISOString(),
+            createdTime: formatLocalToISOLike(new Date()),
             content: todoContent.value,
             status: '待完成',
             deadline: '',
@@ -674,6 +702,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             showStatus.removeChild(showStatus.firstChild)
         }
 
+        // 清空待办
+        while (showTodoList.firstChild) {
+            showTodoList.removeChild(showTodoList.firstChild)
+        }
 
         // 刷新待办
         const showTimeout = setInterval(() => {
@@ -764,13 +796,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             const contentNode = todo.querySelector('.todo_content')
 
             contentNode.addEventListener('click', () => {
+                while (showStatus.firstChild) {
+                    showStatus.removeChild(showStatus.firstChild)
+                }
+
+                while (todoDetailsStatus.firstChild) {
+                    todoDetailsStatus.removeChild(todoDetailsStatus.firstChild)
+                }
+
+
                 showTodoElement.classList.add('none')
                 todoDetails.classList.remove('none')
 
                 isShowWindow = true
                 currentTodo = todo
 
-                echoTodo(todo)
+                echoTodo(currentTodo)
             })
 
 
@@ -816,5 +857,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         todoContent.style.borderColor = config.ui.textBorderColor
         todoContent.style.color = config.ui.textFontColor
         todoContent.style.fontSize = config.ui.textFontSize + 'px'
+    }
+
+    // 时间格式化
+    function formatLocalToISOLike(date) {
+        const pad = (n) => n.toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        const seconds = pad(date.getSeconds());
+
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
     }
 })

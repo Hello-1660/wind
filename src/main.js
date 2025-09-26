@@ -418,14 +418,13 @@ ipcMain.on('add-todo', (event, data) => {
 
 // 修改待办
 ipcMain.on('update-todo', (event, id, data) => { 
-    console.log('修改待办：', data)
     new TodoManager().updateTodo(id, data)
 })
 
 
 // 删除待办
-ipcMain.on('delete-todo', (event, data) => { 
-    new TodoManager().deleteTodo(data)
+ipcMain.on('delete-todo', (event, id) => { 
+    new TodoManager().deleteTodo(id)
 })
 
 
