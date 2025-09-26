@@ -112,8 +112,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     addTodo: addTodo.value,
                     showTodo: showTodo.value,
                     updateTodo: updateTodo.value,
-                    isRemind: isEnable,
-                    isAutoStart: isEntip
+                    isRemind: isEntip,
+                    isAutoStart: isEnable 
                 }
             }
 
