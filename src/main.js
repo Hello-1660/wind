@@ -19,8 +19,8 @@ let mainWindow = null
 let settingWindow = null
 // 展示界面
 let showWindow = null
-
-
+// 开机自启
+const isAutoStart = process.argv.includes('--auto-start');
 
 
 
@@ -67,6 +67,7 @@ const createMainWindow = () => {
         transparent: true,
         resizable: false,
         skipTaskbar: true,
+        show: !isAutoStart,
         // icon: path.join(__dirname, 'icon.png'),
         webPreferences: {
             nodeIntegration: true,
@@ -74,6 +75,12 @@ const createMainWindow = () => {
             preload: path.join(__dirname, 'preload.js'),
         }
     })
+
+    // 如果是开机自启，确保窗口隐藏并只显示托盘
+    if (isAutoStart) {
+        mainWindow.hide();
+    }
+
 
     mainWindow.on('move', () => {
         const position = mainWindow.getPosition()
@@ -269,12 +276,31 @@ app.on('ready', () => {
     // 设置应用ID（Windows通知必要）
     app.setAppUserModelId('wind');
 
+    // 设置开机自启
+    getSetting().then(settingConfig => {
+        const settings = {
+            openAtLogin: settingConfig.Interaction.isAutoStart,
+            path: process.execPath,
+            args: ['--auto-start']
+        };
+        
+        // 只在打包后设置开机自启
+        if (app.isPackaged) {
+            app.setLoginItemSettings(settings);
+            console.log('开机自启设置:', app.getLoginItemSettings());
+        }
+        
+        // 如果是开机自启启动，确保主窗口隐藏
+        if (isAutoStart && mainWindow) {
+            mainWindow.hide();
+        }
+    });
+
     // 延迟加载提醒，确保窗口已创建
     setTimeout(() => {
         notificationManager.loadAllReminders()
     }, 2000)
 })
-
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
@@ -482,11 +508,6 @@ ipcMain.on('delete-todo', (event, id) => {
     new TodoManager().deleteTodo(id)
 })
 
-// 发送测试通知
-ipcMain.handle('send-test-notification', () => {
-    notificationManager.sendNotification('测试通知', '便签应用通知功能正常！');
-});
-
 // 重新加载所有提醒
 ipcMain.handle('reload-reminders', () => {
     notificationManager.loadAllReminders();
@@ -502,13 +523,57 @@ ipcMain.handle('get-reminder-status', () => {
     return notificationManager.isRemindEnabled;
 });
 
+ipcMain.on('setting-data', (event, data) => {
+    try {
+        const configMap = {
+            'WinWidth': 300,
+            'WinHeight': 200,
+            'winX': winPath.winX,
+            'winY': winPath.winY,
+            'bgc': data.ui.bgc,
+            'font': data.ui.font,
+            'fontSize': data.ui.fontSize,
+            'fontColor': data.ui.fontColor,
+            'btnBorderColor': data.ui.btnBorderColor,
+            'btnBgColor': data.ui.btnBgColor,
+            'btnFontColor': data.ui.btnFontColor,
+            'btnFontSize': data.ui.btnFontSize,
+            'textBorderColor': data.ui.textBorderColor,
+            'textBgColor': data.ui.textBgColor,
+            'textFontColor': data.ui.textFontColor,
+            'textFontSize': data.ui.textFontSize,
+            'timeFontColor': data.ui.timeFontColor,
+            'timeFontSize': data.ui.timeFontSize,
+            'dateFontColor': data.ui.dateFontColor,
+            'dateFontSize': data.ui.dateFontSize,
+            'dateFormat': data.ui.dateFormat,
+            'dateContent': data.ui.dateContent.trim(),
+            'tipStyle': data.ui.tipStyle,
+            'addTodo': data.Interaction.addTodo,
+            'showTodo': data.Interaction.showTodo,
+            'updateTodo': data.Interaction.updateTodo,
+            'isRemind': data.Interaction.isRemind,
+            'isAutoStart': data.Interaction.isAutoStart
+        }
 
-
-
-
-
-
-
+        // 写入配置文件
+        writeSettingFile(configMap)
+        
+        // 更新开机自启设置
+         // 更新开机自启设置 - 修复版本
+        const settings = {
+            openAtLogin: data.Interaction.isAutoStart,
+            path: process.execPath,
+            args: ['--auto-start']
+        };
+        
+        if (app.isPackaged) {
+            app.setLoginItemSettings(settings);
+        }
+    } catch (error) {
+        console.error('保存配置文件失败：' + error)
+    }
+})
 
 
 
@@ -995,23 +1060,6 @@ class NotificationManager {
             this.loadAllReminders();
             console.log('提醒功能已启用');
         }
-    }
-
-    // 添加测试方法
-    testReminder() {
-        const testTodo = {
-            id: 'test-' + Date.now(),
-            theme: '测试提醒',
-            content: '这是一个测试提醒，将在10秒后触发',
-            remindTime: new Date(Date.now() + 10000).toISOString(), // 10秒后
-            deadline: new Date(Date.now() + 30000).toISOString(),
-            status: '待完成'
-        };
-        
-        console.log('开始测试提醒功能...');
-        this.setTodoReminder(testTodo);
-        
-        return testTodo.id;
     }
 }
 

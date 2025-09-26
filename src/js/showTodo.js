@@ -427,6 +427,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 清除残留数据
             currentTodo = null
 
+            todoTheme.value = ''
+            todoContent.value = ''
 
             while (showStatus.firstChild) {
                 showStatus.removeChild(showStatus.firstChild)
