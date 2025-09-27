@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 添加删除的快捷键
     document.addEventListener('keydown', (e) => {
-        
+
         if (e.ctrlKey && e.key == 'd') {
             console.log('ctrl + d')
             if (!isShowWindow) return
@@ -779,6 +779,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const list = todoList.todos
 
         if (!list) return
+
+
+        list.sort((a, b) => {
+            // 首先按优先级排序，优先级高的在前
+            if (a.priority === "1" && b.priority !== "1") {
+                return -1;
+            } else if (a.priority !== "1" && b.priority === "1") {
+                return 1;
+            }
+
+            // 如果优先级相同，则按创建时间排序，创建时间早的在前
+            return new Date(a.createdTime) - new Date(b.createdTime);
+        });
+
 
         list.forEach(item => {
             const createTime = new Date(item.createdTime)

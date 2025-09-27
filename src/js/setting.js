@@ -112,8 +112,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     addTodo: addTodo.value,
                     showTodo: showTodo.value,
                     updateTodo: updateTodo.value,
-                    isRemind: isEntip,
-                    isAutoStart: isEnable 
+                    isRemind: isEnable,  
+                    isAutoStart: isEntip 
                 }
             }
 
@@ -201,21 +201,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (config.Interaction.isRemind == true) {
             enable.checked = true
             desable.checked = false
-            isEnable = true
+            isEntip = true
         } else {
             desable.checked = true
             enable.checked = false
-            isEnable = false
+            isEntip = false
         }
 
         if (config.Interaction.isAutoStart == true) {
             entip.checked = true
             destip.checked = false
-            isEntip = true
+            isEnable = true
         } else {
             destip.checked = true
             entip.checked = false
-            isEntip = false
+            isEnable = false
         }
     }
 
@@ -294,21 +294,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (originConfig.Interaction.isRemind == true) {
             enable.checked = true
             desable.checked = false
-            isEnable = true
+            isEntip = true
         } else {
             desable.checked = true
             enable.checked = false
-            isEnable = false
+            isEntip = false
         }
 
         if (originConfig.Interaction.isAutoStart == true) {
             entip.checked = true
             destip.checked = false
-            isEntip = true
+            isEnable = true
         } else {
             destip.checked = true
             entip.checked = false
-            isEntip = false
+            isEnable = false
         }
     }
 

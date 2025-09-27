@@ -68,7 +68,7 @@ const createMainWindow = () => {
         resizable: false,
         skipTaskbar: true,
         show: !isAutoStart,
-        // icon: path.join(__dirname, 'icon.png'),
+        icon: path.join(__dirname, 'icon.png'),
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: true,
@@ -468,7 +468,7 @@ ipcMain.handle('get-setting-data', (event, data) => {
             'addTodo': data.Interaction.addTodo,
             'showTodo': data.Interaction.showTodo,
             'updateTodo': data.Interaction.updateTodo,
-            'isRemind': data.Interaction.isRemind,
+            'isRemind': data.Interaction.isRemind,    
             'isAutoStart': data.Interaction.isAutoStart
         }
 
@@ -581,70 +581,108 @@ ipcMain.on('setting-data', (event, data) => {
 
 
 
-
+// 获取设置文件路径
+function getSettingFilePath() {
+    const { app } = require('electron');
+    const userDataPath = app.getPath('userData');
+    const path = require('path');
+    return path.join(userDataPath, 'setting.properties');
+}
 
 
 
 
 // 修改配置文件
+
+// 修改配置文件
+// 修改配置文件
 function writeSettingFile(data) {
     try {
-        const settingFilePath = path.join(__dirname, 'setting.properties')
-        let settingContent = fs.readFileSync(settingFilePath, 'utf-8')
+        const fs = require('fs');
+        const path = require('path');
+        const { app } = require('electron');
+        
+        // 确保用户数据目录存在
+        const userDataPath = app.getPath('userData');
+        if (!fs.existsSync(userDataPath)) {
+            fs.mkdirSync(userDataPath, { recursive: true });
+        }
+        
+        // 使用用户数据目录
+        const settingFilePath = getSettingFilePath();
+        
+        // 如果文件不存在，从应用资源目录复制默认文件
+        if (!fs.existsSync(settingFilePath)) {
+            const defaultSettingPath = path.join(__dirname, 'setting.properties');
+            fs.copyFileSync(defaultSettingPath, settingFilePath);
+        }
+        
+        let settingContent = fs.readFileSync(settingFilePath, 'utf-8');
 
         // 更改配置文件
         for (const [key, value] of Object.entries(data)) {
-
-            const trimmedValue = typeof value === 'string' ? value.trim() : value
-            const regex = new RegExp(`(${key}\\s*=\\s*).*`, 'i')
+            const trimmedValue = typeof value === 'string' ? value.trim() : value;
+            const regex = new RegExp(`(${key}\\s*=\\s*).*`, 'i');
 
             if (regex.test(settingContent)) {
-                settingContent = settingContent.replace(regex, `$1${trimmedValue}`)
+                settingContent = settingContent.replace(regex, `$1${trimmedValue}`);
             }
         }
 
-        fs.writeFileSync(settingFilePath, settingContent, 'utf-8')
+        fs.writeFileSync(settingFilePath, settingContent, 'utf-8');
     } catch (error) {
-        console.error('更新配置文件失败：' + error)
+        console.error('更新配置文件失败：' + error);
     }
 }
-
-
-
 
 
 // 读取配置文件
 function readSettingFile() {
-    try {
-        // 读取 setting.properties 文件
-        const settingPath = path.join(__dirname, 'setting.properties')
-        const setting = fs.readFileSync(settingPath, 'utf-8')
-
-        // 解析
-        const config = {}
-        const lines = setting.split('\n')
-
-        lines.forEach(line => {
-            line = line.trim()
-
-            // 跳过空行和注释行
-            if (line && !line.startsWith('#') && !line.startsWith(';')) {
-                const [key, value] = line.split('=')
-
-                if (key && value) {
-                    config[key.trim()] = value.trim()
-                }
-            }
-        })
-
-        return config
-    } catch (error) {
-        console.error('读取配置文件失败：' + error)
-        return {}
+  try {
+    const fs = require('fs');
+    const { app } = require('electron');
+    const path = require('path');
+    
+    // 确保用户数据目录存在
+    const userDataPath = app.getPath('userData');
+    if (!fs.existsSync(userDataPath)) {
+      fs.mkdirSync(userDataPath, { recursive: true });
     }
+    
+    // 使用用户数据目录
+    const settingPath = getSettingFilePath();
+    
+    // 如果用户数据目录中没有配置文件，则从应用资源目录复制
+    if (!fs.existsSync(settingPath)) {
+      const defaultSettingPath = path.join(__dirname, 'setting.properties');
+      fs.copyFileSync(defaultSettingPath, settingPath);
+    }
+    
+    const setting = fs.readFileSync(settingPath, 'utf-8');
+
+    // 解析
+    const config = {};
+    const lines = setting.split('\n');
+
+    lines.forEach(line => {
+      line = line.trim();
+
+      // 跳过空行和注释行
+      if (line && !line.startsWith('#') && !line.startsWith(';')) {
+        const [key, value] = line.split('=');
+
+        if (key && value) {
+          config[key.trim()] = value.trim();
+        }
+      }
+    });
+
+    return config;
+  } catch (error) {
+    console.error('读取配置文件失败：' + error);
+    return {};
+  }
 }
-
-
 
 
 // 配置数据模型
@@ -787,8 +825,15 @@ function getSetting() {
 
 
 class TodoManager {
-    constructor(storagePath = path.join(__dirname, '../todos.json')) {
-        this.storagePath = storagePath
+    constructor() {
+        // 修复打包后文件路径问题
+        if (app.isPackaged) {
+            // 打包后，数据文件应该放在用户数据目录，而不是安装目录
+            this.storagePath = path.join(app.getPath('userData'), 'todos.json');
+        } else {
+            // 开发时保持原路径
+            this.storagePath = path.join(__dirname, '../todos.json');
+        }
     }
 
 
