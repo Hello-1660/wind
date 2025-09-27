@@ -268,7 +268,7 @@ app.on('ready', () => {
     createTray()
 
     // 设置应用ID（Windows通知必要）
-    app.setAppUserModelId('wind');
+    app.setAppUserModelId('wind')
 
     // 设置开机自启
     getSetting().then(settingConfig => {
@@ -887,7 +887,6 @@ class NotificationManager {
             const setting = readSettingFile();
             this.isRemindEnabled = setting.isRemind !== 'false';
         } catch (error) {
-            console.error('加载提醒设置失败:', error);
             this.isRemindEnabled = true;
         }
     }
@@ -932,6 +931,8 @@ class NotificationManager {
         if (!this.isRemindEnabled) return null;
 
         try {
+             
+
             const notification = new Notification({
                 title: title || '便签提醒',
                 body: body,
@@ -940,8 +941,11 @@ class NotificationManager {
                 timeoutType: 'default'
             });
 
+            console.log('png:', path.join(__dirname, './icons/wind.png'));
+
+
+
             notification.on('click', () => {
-                console.log('通知被点击, todoId:', todoId);
                 if (showWindow) {
                     showWindow.focus();
                     if (todoId) {
@@ -999,11 +1003,9 @@ class NotificationManager {
                 todo.id
             );
             this.reminderTimers.delete(todo.id);
-            console.log('✅ 提醒已触发:', todo.theme);
         }, delay);
 
         this.reminderTimers.set(todo.id, timer);
-        console.log(`✅ 设置提醒成功: ${todo.theme}, 将在 ${remindDate.toLocaleString('zh-CN')} 提醒`);
     }
 
     cancelTodoReminder(todoId) {
