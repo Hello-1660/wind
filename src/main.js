@@ -4,9 +4,13 @@ const fs = require('fs')
 const fsp = require('fs').promises;
 
 
+// 添加这行代码确保应用只运行一个实例
+const gotTheLock = app.requestSingleInstanceLock()
 
-
-
+if (!gotTheLock) {
+  app.quit()
+  return
+}
 
 
 // 系统托盘
@@ -41,7 +45,14 @@ const winPath = {
 
 
 
-
+app.on('second-instance', (event, commandLine, workingDirectory) => {
+  // 如果 mainWindow 存在，则激活它
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.show()
+    mainWindow.focus()
+  }
+})
 
 
 
