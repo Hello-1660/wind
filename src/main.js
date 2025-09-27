@@ -189,15 +189,9 @@ const createTray = () => {
             }
         },
         {
-            label: '添加待办',
-            click: () => {
-
-            }
-        },
-        {
             label: '查看待办',
             click: () => {
-
+                createShowWindow()
             }
         },
         {
@@ -301,6 +295,7 @@ app.on('ready', () => {
         notificationManager.loadAllReminders()
     }, 2000)
 })
+
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
@@ -523,6 +518,7 @@ ipcMain.handle('get-reminder-status', () => {
     return notificationManager.isRemindEnabled;
 });
 
+// 获取咖开机自启状态
 ipcMain.on('setting-data', (event, data) => {
     try {
         const configMap = {
